@@ -27,6 +27,7 @@ package org.omegat.gui.main;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -35,6 +36,7 @@ import javax.swing.event.DocumentListener;
 
 import org.jdesktop.swingworker.SwingWorker;
 import org.omegat.core.Core;
+import org.omegat.core.KnownException;
 import org.omegat.core.data.ProjectFactory;
 import org.omegat.core.data.ProjectProperties;
 import org.omegat.core.team.GITRemoteRepository;
@@ -366,8 +368,7 @@ public class ProjectUICommands {
                         }
                     });
                 } catch (Exception ex) {
-                    Log.logErrorRB(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
-                    Core.getMainWindow().displayErrorRB(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
+                    processSwingWorkerException(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
                 }
             }
         }.execute();
@@ -391,8 +392,7 @@ public class ProjectUICommands {
                 try {
                     get();
                 } catch (Exception ex) {
-                    Log.logErrorRB(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
-                    Core.getMainWindow().displayErrorRB(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
+                    processSwingWorkerException(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
                 }
             }
         }.execute();
@@ -419,8 +419,7 @@ public class ProjectUICommands {
                     get();
                     ProjectFactory.closeProject();
                 } catch (Exception ex) {
-                    Log.logErrorRB(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
-                    Core.getMainWindow().displayErrorRB(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
+                    processSwingWorkerException(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
                 }
             }
         }.execute();
@@ -463,8 +462,7 @@ public class ProjectUICommands {
                     get();
                     Core.getEditor().gotoEntry(previousCurEntryNum);
                 } catch (Exception ex) {
-                    Log.logErrorRB(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
-                    Core.getMainWindow().displayErrorRB(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
+                    processSwingWorkerException(ex, "PP_ERROR_UNABLE_TO_READ_PROJECT_FILE");
                 }
             }
         }.execute();
@@ -484,8 +482,7 @@ public class ProjectUICommands {
                 try {
                     get();
                 } catch (Exception ex) {
-                    Log.logErrorRB(ex, "TF_COMPILE_ERROR");
-                    Core.getMainWindow().displayErrorRB(ex, "TF_COMPILE_ERROR");
+                    processSwingWorkerException(ex, "TF_COMPILE_ERROR");
                 }
             }
         }.execute();
@@ -500,5 +497,20 @@ public class ProjectUICommands {
 
         // commit the current entry first
         Core.getEditor().commitAndLeave();
+    }
+
+    private static void processSwingWorkerException(Exception ex, String errorCode) {
+        if (ex instanceof ExecutionException) {
+            Log.logErrorRB(ex.getCause(), errorCode);
+            if (ex.getCause() instanceof KnownException) {
+                KnownException e = (KnownException) ex.getCause();
+                Core.getMainWindow().displayErrorRB(e.getCause(), e.getMessage(), e.getParams());
+            } else {
+                Core.getMainWindow().displayErrorRB(ex.getCause(), errorCode);
+            }
+        } else {
+            Log.logErrorRB(ex, errorCode);
+            Core.getMainWindow().displayErrorRB(ex, errorCode);
+        }
     }
 }
