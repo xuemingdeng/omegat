@@ -138,7 +138,12 @@ public abstract class ParseEntry implements IParseCallback {
             translation = stripSomeChars(translation, tmp);
         }
   
-        String segTranslation = isFuzzy ? null : translation;
+        String segTranslation;
+        if (StringUtil.isEmpty(translation)) {
+            segTranslation = null;
+        } else {
+            segTranslation = (isFuzzy ? "[" + filter.getFuzzyMark() + "] " : "") + translation;
+        }
 
         if (m_config.isSentenceSegmentingEnabled()) {
             List<StringBuffer> spaces = new ArrayList<StringBuffer>();
@@ -155,16 +160,6 @@ public abstract class ParseEntry implements IParseCallback {
             }
         } else {
             internalAddSegment(id, (short) 0, source, segTranslation, comment, path);
-        }
-        if (translation != null) {
-            // Add systematically the TU as a legacy TMX
-            String tmxSource;
-            if (isFuzzy) {
-                tmxSource = "[" + filter.getFuzzyMark() + "] " + source;
-            } else {
-                tmxSource = source;
-            }
-            addFileTMXEntry(tmxSource, translation);
         }
     }
 
@@ -211,12 +206,6 @@ public abstract class ParseEntry implements IParseCallback {
         item.path = path;
         parseQueue.add(item);
     }
-    
-    /**
-     * Adds the source and translation to the generated 'reference TMX', a
-     * special TMX that is used as extra refrence during translation.
-     */
-    public abstract void addFileTMXEntry(String source, String translation);
 
     /**
      * Adds a segment to the project. If a translation is given, it it added to the projects TMX.

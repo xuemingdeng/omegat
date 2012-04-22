@@ -163,6 +163,14 @@ public class FindMatchesThread extends EntryInfoSearchThread<List<NearString>> {
                 processEntry(null, tmen.source, tmen.translation, en.getKey());
             }
         }
+        
+        // travel by all entries for check source file translations
+        for (SourceTextEntry ste : project.getAllEntries()) {
+            checkEntryChanged();
+            if (ste.getSourceTranslation() != null) {
+                processEntry(ste.getKey(), ste.getSrcText(), ste.getSourceTranslation(), ste.getKey().file);
+            }
+        }
 
         // fill similarity data only for result
         for (NearString near : result) {

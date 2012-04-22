@@ -397,10 +397,6 @@ public class Searcher {
                 String segmentTranslation, String comment, String prevSegment, String nextSegment, String path) {
             searchText(segmentSource, filename);
         }
-
-        @Override
-        public void addFileTMXEntry(String source, String translation) {
-        }
     }
 
     // /////////////////////////////////////////////////////////////////////

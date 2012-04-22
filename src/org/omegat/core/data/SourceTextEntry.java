@@ -40,6 +40,9 @@ public class SourceTextEntry {
 
     /** Comment in source file. */
     private String comment;
+    
+    /** Translation from source files. */
+    private String sourceTranslation;
 
     public enum DUPLICATE {
         /** There is no entries with the same source. */
@@ -68,10 +71,11 @@ public class SourceTextEntry {
      * @param entryNum
      *            the number of this entry in a project.
      */
-    public SourceTextEntry(EntryKey key, int entryNum, String comment) {
+    public SourceTextEntry(EntryKey key, int entryNum, String comment, String sourceTranslation) {
         this.key = key;
         m_entryNum = entryNum;
         this.comment = comment;
+        this.sourceTranslation = sourceTranslation;
     }
 
     public EntryKey getKey() {
@@ -100,5 +104,9 @@ public class SourceTextEntry {
     /** If entry with the same source already exist in project. */
     public DUPLICATE getDuplicate() {
         return duplicate;
+    }
+    
+    public String getSourceTranslation() {
+        return sourceTranslation;
     }
 }
