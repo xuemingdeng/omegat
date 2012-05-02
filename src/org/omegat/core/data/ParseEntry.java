@@ -73,8 +73,8 @@ public abstract class ParseEntry implements IParseCallback {
          * Flush queue.
          */
         for (ParseEntryQueueItem item : parseQueue) {
-            addSegment(item.id, item.segmentIndex, item.segmentSource, item.segmentTranslation, item.comment,
-                    item.prevSegment, item.nextSegment, item.path);
+            addSegment(item.id, item.segmentIndex, item.segmentSource, item.segmentTranslation,
+                    item.segmentTranslationFuzzy, item.comment, item.prevSegment, item.nextSegment, item.path);
         }
 
         /**
@@ -137,13 +137,6 @@ public abstract class ParseEntry implements IParseCallback {
         if (translation != null) {
             translation = stripSomeChars(translation, tmp);
         }
-  
-        String segTranslation;
-        if (StringUtil.isEmpty(translation)) {
-            segTranslation = null;
-        } else {
-            segTranslation = (isFuzzy ? "[" + filter.getFuzzyMark() + "] " : "") + translation;
-        }
 
         if (m_config.isSentenceSegmentingEnabled()) {
             List<StringBuffer> spaces = new ArrayList<StringBuffer>();
@@ -151,15 +144,15 @@ public abstract class ParseEntry implements IParseCallback {
             Language sourceLang = m_config.getSourceLanguage();
             List<String> segments = Segmenter.segment(sourceLang, source, spaces, brules);
             if (segments.size() == 1) {
-                internalAddSegment(id, (short) 0, segments.get(0), segTranslation, comment, path);
+                internalAddSegment(id, (short) 0, segments.get(0), translation, isFuzzy, comment, path);
             } else {
                 for (short i = 0; i < segments.size(); i++) {
                     String onesrc = segments.get(i);
-                    internalAddSegment(id, i, onesrc, null, comment, path);
+                    internalAddSegment(id, i, onesrc, null, false, comment, path);
                 }
             }
         } else {
-            internalAddSegment(id, (short) 0, source, segTranslation, comment, path);
+            internalAddSegment(id, (short) 0, source, translation, isFuzzy, comment, path);
         }
     }
 
@@ -191,8 +184,8 @@ public abstract class ParseEntry implements IParseCallback {
     /**
      * Add segment to queue because we possible need to link prev/next segments.
      */
-    private void internalAddSegment(String id, short segmentIndex, String segmentSource,
-            String segmentTranslation, String comment, String path) {
+    private void internalAddSegment(String id, short segmentIndex, String segmentSource, String segmentTranslation,
+            boolean segmentTranslationFuzzy, String comment, String path) {
         if (segmentSource.length() == 0 || segmentSource.trim().length() == 0) {
             // skip empty segments
             return;
@@ -202,6 +195,7 @@ public abstract class ParseEntry implements IParseCallback {
         item.segmentIndex = segmentIndex;
         item.segmentSource = segmentSource;
         item.segmentTranslation = segmentTranslation;
+        item.segmentTranslationFuzzy = segmentTranslationFuzzy;
         item.comment = comment;
         item.path = path;
         parseQueue.add(item);
@@ -217,7 +211,9 @@ public abstract class ParseEntry implements IParseCallback {
      * @param segmentSource
      *            Translatable source string
      * @param segmentTranslation
-     *            non fuzzy translation of the source string, if format supports it
+     *            translation of the source string, if format supports it
+     * @param segmentTranslationFuzzy
+     *            fuzzy flag of translation of the source string, if format supports it
      * @param comment
      *            entry's comment, if format supports it
      * @param prevSegment
@@ -227,8 +223,8 @@ public abstract class ParseEntry implements IParseCallback {
      * @param path
      *            path of segment
      */
-    protected abstract void addSegment(String id, short segmentIndex, String segmentSource,
-            String segmentTranslation, String comment, String prevSegment, String nextSegment, String path);
+    protected abstract void addSegment(String id, short segmentIndex, String segmentSource, String segmentTranslation,
+            boolean segmentTranslationFuzzy, String comment, String prevSegment, String nextSegment, String path);
 
     /**
      * Strip some chars for represent string in UI.
@@ -307,6 +303,7 @@ public abstract class ParseEntry implements IParseCallback {
         short segmentIndex;
         String segmentSource;
         String segmentTranslation;
+        boolean segmentTranslationFuzzy;
         String comment;
         String prevSegment;
         String nextSegment;

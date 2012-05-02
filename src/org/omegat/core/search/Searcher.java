@@ -393,8 +393,8 @@ public class Searcher {
         }
 
         @Override
-        protected void addSegment(String id, short segmentIndex, String segmentSource,
-                String segmentTranslation, String comment, String prevSegment, String nextSegment, String path) {
+        protected void addSegment(String id, short segmentIndex, String segmentSource, String segmentTranslation,
+                boolean segmentTranslationFuzzy, String comment, String prevSegment, String nextSegment, String path) {
             searchText(segmentSource, filename);
         }
     }

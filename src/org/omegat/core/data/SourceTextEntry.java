@@ -43,6 +43,9 @@ public class SourceTextEntry {
     
     /** Translation from source files. */
     private String sourceTranslation;
+    
+    /** Translation from source files is fuzzy. */
+    private boolean sourceTranslationFuzzy;
 
     public enum DUPLICATE {
         /** There is no entries with the same source. */
@@ -108,5 +111,13 @@ public class SourceTextEntry {
     
     public String getSourceTranslation() {
         return sourceTranslation;
+    }
+    
+    public boolean isSourceTranslationFuzzy() {
+        return sourceTranslationFuzzy;
+    }
+    
+    public void setSourceTranslationFuzzy(boolean sourceTranslationFuzzy) {
+        this.sourceTranslationFuzzy = sourceTranslationFuzzy;
     }
 }
