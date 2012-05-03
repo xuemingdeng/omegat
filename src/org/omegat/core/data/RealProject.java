@@ -136,7 +136,7 @@ public class RealProject implements IProject {
      */
     private Map<String, ExternalTMX> transMemories = new TreeMap<String, ExternalTMX>();
 
-    private ProjectTMX projectTMX;
+    protected ProjectTMX projectTMX;
 
     // Sets of exist entries for check orphaned
     private Set<String> existSource = new HashSet<String>();
@@ -246,6 +246,8 @@ public class RealProject implements IProject {
             loadSourceFiles();
 
             loadTranslations();
+            
+            importTranslationsFromSources();
 
             loadTM();
 
@@ -623,6 +625,57 @@ public class RealProject implements IProject {
 
                 if (prevSte == null) {
                     exists.put(ste.getSrcText(), ste);
+                }
+            }
+        }
+    }
+    
+    /**
+     * This method imports translation from source files into ProjectTMX.
+     * 
+     * If there are multiple segments with equals source, then first
+     * translations will be loaded as default, all other translations will be
+     * loaded as alternative.
+     * 
+     * We shouldn't load translation from source file(even as alternative) when
+     * default translation already exists in project_save.tmx. So, only first
+     * load will be possible.
+     */
+    void importTranslationsFromSources() {
+        // which default translations we added - allow to add alternatives
+        Set<String> allowToImport = new HashSet<String>();
+
+        for (FileInfo fi : projectFilesList) {
+            for (int i = 0; i < fi.entries.size(); i++) {
+                SourceTextEntry ste = fi.entries.get(i);
+                if (ste.getSourceTranslation() == null) {
+                    // there is no translation in source file
+                    continue;
+                }
+
+                // project with default translations
+                if (m_config.isSupportDefaultTranslations()) {
+                    // can we import as default translation ?
+                    TMXEntry enDefault = projectTMX.getDefaultTranslation(ste.getSrcText());
+                    if (enDefault == null) {
+                        // default not exist yet - yes, we can
+                        TMXEntry tr = new TMXEntry(ste.getSrcText(), ste.getSourceTranslation(), null, 0, null, true);
+                        projectTMX.setTranslation(ste, tr, true);
+                        allowToImport.add(ste.getSrcText());
+                    } else if (allowToImport.contains(ste.getSrcText())) {
+                        // can we import as alternative translation ?
+                        // we just imported default - yes, we can
+                        TMXEntry tr = new TMXEntry(ste.getSrcText(), ste.getSourceTranslation(), null, 0, null, false);
+                        projectTMX.setTranslation(ste, tr, false);
+                    }
+                } else { // project without default translations
+                    // can we import as alternative translation ?
+                    TMXEntry en = projectTMX.getMultipleTranslation(ste.getKey());
+                    if (en == null) {
+                        // not exist yet - yes, we can
+                        TMXEntry tr = new TMXEntry(ste.getSrcText(), ste.getSourceTranslation(), null, 0, null, false);
+                        projectTMX.setTranslation(ste, tr, false);
+                    }
                 }
             }
         }
