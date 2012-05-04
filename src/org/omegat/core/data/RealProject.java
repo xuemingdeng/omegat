@@ -143,7 +143,7 @@ public class RealProject implements IProject {
     private Set<EntryKey> existKeys = new HashSet<EntryKey>();
 
     /** Segments count in project files. */
-    private final List<FileInfo> projectFilesList = new ArrayList<FileInfo>();
+    protected final List<FileInfo> projectFilesList = new ArrayList<FileInfo>();
 
     /** This instance returned if translation not exist. */
     private static final TMXEntry EMPTY_TRANSLATION = new TMXEntry("", null, null, 0, null, true);
@@ -643,13 +643,15 @@ public class RealProject implements IProject {
      */
     void importTranslationsFromSources() {
         // which default translations we added - allow to add alternatives
-        Set<String> allowToImport = new HashSet<String>();
+        // except the same translation
+        Map<String, String> allowToImport = new HashMap<String, String>();
 
         for (FileInfo fi : projectFilesList) {
             for (int i = 0; i < fi.entries.size(); i++) {
                 SourceTextEntry ste = fi.entries.get(i);
-                if (ste.getSourceTranslation() == null) {
-                    // there is no translation in source file
+                if (ste.getSourceTranslation() == null || ste.isSourceTranslationFuzzy()) {
+                    // there is no translation in source file, or translation is
+                    // fuzzy
                     continue;
                 }
 
@@ -661,12 +663,19 @@ public class RealProject implements IProject {
                         // default not exist yet - yes, we can
                         TMXEntry tr = new TMXEntry(ste.getSrcText(), ste.getSourceTranslation(), null, 0, null, true);
                         projectTMX.setTranslation(ste, tr, true);
-                        allowToImport.add(ste.getSrcText());
-                    } else if (allowToImport.contains(ste.getSrcText())) {
+                        allowToImport.put(ste.getSrcText(), ste.getSourceTranslation());
+                    } else {
+                        // default translation already exist - did we just
+                        // imported it ?
+                        String justImported = allowToImport.get(ste.getSrcText());
                         // can we import as alternative translation ?
-                        // we just imported default - yes, we can
-                        TMXEntry tr = new TMXEntry(ste.getSrcText(), ste.getSourceTranslation(), null, 0, null, false);
-                        projectTMX.setTranslation(ste, tr, false);
+                        if (justImported != null && !ste.getSourceTranslation().equals(justImported)) {
+                            // we just imported default and it doesn't equals to
+                            // current - import as alternative
+                            TMXEntry tr = new TMXEntry(ste.getSrcText(), ste.getSourceTranslation(), null, 0, null,
+                                    false);
+                            projectTMX.setTranslation(ste, tr, false);
+                        }
                     }
                 } else { // project without default translations
                     // can we import as alternative translation ?
