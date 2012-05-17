@@ -185,6 +185,12 @@ public class RealProject implements IProject {
 
             saveProjectProperties();
 
+            // set project specific segmentation rules if they exist
+            Segmenter.srx = m_config.getProjectSRX();
+            if (Segmenter.srx == null) {
+                Segmenter.srx = Preferences.getSRX();
+            }
+
             loadTM();
 
             allProjectEntries = Collections.unmodifiableList(allProjectEntries);
