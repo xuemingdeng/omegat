@@ -325,8 +325,6 @@ public class ProjectUICommands {
                         }
                     } catch (Exception ex) {
                         Core.getMainWindow().displayErrorRB(ex, "TEAM_CHECKOUT_ERROR", ex.getMessage());
-                        mainWindow.setCursor(oldCursor);
-                        return null;
                     }
                     try {
                         ProjectFactory.loadProject(props, repository);
