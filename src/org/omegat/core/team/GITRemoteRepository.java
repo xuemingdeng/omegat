@@ -30,6 +30,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.ProgressMonitor;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -125,7 +126,7 @@ public class GITRemoteRepository implements IRemoteRepository {
         new Git(repository).checkout().setName(getBaseRevisionId(file)).call();
     }
 
-    public void updateFullProject() throws Exception {
+    public void updateFullProject() throws NetworkException, Exception {
         Log.logInfoRB("GIT_START", "pull");
         try {
             new Git(repository).fetch().call();
@@ -136,11 +137,11 @@ public class GITRemoteRepository implements IRemoteRepository {
             Log.logInfoRB("GIT_FINISH", "pull");
         } catch (Exception ex) {
             Log.logErrorRB("GIT_ERROR", "pull", ex.getMessage());
-            throw ex;
+            checkAndThrowException(ex);
         }
     }
 
-    public void download(File file) throws Exception {
+    public void download(File file) throws NetworkException, Exception {
         Log.logInfoRB("GIT_START", "download");
         try {
             new Git(repository).fetch().call();
@@ -151,10 +152,11 @@ public class GITRemoteRepository implements IRemoteRepository {
             Log.logInfoRB("GIT_FINISH", "download");
         } catch (Exception ex) {
             Log.logErrorRB("GIT_ERROR", "download", ex.getMessage());
+            checkAndThrowException(ex);
         }
     }
 
-    public void upload(File file, String commitMessage) throws Exception {
+    public void upload(File file, String commitMessage) throws NetworkException, Exception {
         if (readOnly) {
             // read-only - upload disabled
             Log.logInfoRB("GIT_READONLY");
@@ -188,11 +190,19 @@ public class GITRemoteRepository implements IRemoteRepository {
             Log.logInfoRB("GIT_FINISH", "upload");
         } catch (Exception ex) {
             Log.logErrorRB("GIT_ERROR", "upload", ex.getMessage());
-            throw ex;
+            checkAndThrowException(ex);
         }
         if (!ok) {
             Log.logWarningRB("GIT_CONFLICT");
             throw new Exception("Conflict");
+        }
+    }
+
+    private void checkAndThrowException(Exception ex) throws NetworkException, Exception {
+        if (ex instanceof TransportException) {
+            throw new NetworkException(ex);
+        } else {
+            throw ex;
         }
     }
 
