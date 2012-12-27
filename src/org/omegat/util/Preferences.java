@@ -137,6 +137,10 @@ public class Preferences {
 
     public static final String ALLOW_APERTIUM_TRANSLATE = "allow_apertium_translate";
 
+    public static final String ALLOW_MICROSOFT_TRANSLATE = "allow_microsoft_translate";
+    
+    public static final String ALLOW_MYMEMORY_TRANSLATE = "allow_mymemory_translate";
+
     /** Enable TransTips */
     public static final String TRANSTIPS = "transtips";
     /** TransTips Option: Only match exact words */
@@ -147,6 +151,10 @@ public class Preferences {
     
     /** Mark the non-breakable spaces with a different color */
     public static final String MARK_NBSP = "mark_nbsp";
+    /** Mark whitespace as symbols */
+    public static final String MARK_WHITESPACE = "mark_whitespace";
+    /** Mark Bidi controls as symbols */
+    public static final String MARK_BIDI = "mark_bidi";
 
     /** Mark the translated segments with a different color */
     public static final String MARK_TRANSLATED_SEGMENTS = "mark_translated_segments";
