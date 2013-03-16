@@ -46,11 +46,16 @@ public class Entity {
         return parameter;
     }
 
-    private String name;
+    private String name, originalName;
 
     /** Returns entity's name. */
     public String getName() {
         return name;
+    }
+
+    /** Returns entity's original name, with '%' for parameter entities. */
+    public String getOriginalName() {
+        return originalName;
     }
 
     private String value;
@@ -75,6 +80,7 @@ public class Entity {
     }
 
     private void setName(String name) {
+        originalName = name;
         if (name.charAt(0) == '%') {
             parameter = true;
             this.name = name.substring(1);
