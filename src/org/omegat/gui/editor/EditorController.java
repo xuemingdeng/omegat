@@ -50,9 +50,11 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.CompoundEdit;
 
 import org.jdesktop.swingworker.SwingWorker;
 import org.omegat.core.Core;
@@ -83,7 +85,6 @@ import org.omegat.util.Preferences;
 import org.omegat.util.StaticUtils;
 import org.omegat.util.StringUtil;
 import org.omegat.util.Token;
-import org.omegat.util.gui.Styles;
 import org.omegat.util.gui.UIThreadsUtil;
 
 import com.vlsolutions.swing.docking.DockingDesktop;
@@ -497,17 +498,17 @@ public class EditorController implements IEditor {
             //we cannot edit the document here, only other stuff.
             public void changedUpdate(DocumentEvent e) {
                 showLengthMessage();
-                onTextChanged();
+                onTextChanged(e);
             }
 
             public void insertUpdate(DocumentEvent e) {
                 showLengthMessage();
-                onTextChanged();
+                onTextChanged(e);
             }
 
             public void removeUpdate(DocumentEvent e) {
                 showLengthMessage();
-                onTextChanged();
+                onTextChanged(e);
             }
         });
 
@@ -551,7 +552,7 @@ public class EditorController implements IEditor {
         Core.getNotes().setNoteText(Core.getProject().getTranslationInfo(ste).note);
 
         // then add new marks
-        markerController.reprocessImmediately(m_docSegList[displayedEntryIndex]);
+        markerController.reprocessImmediately(m_docSegList[displayedEntryIndex], null);
 
         editor.cancelUndo();
 
@@ -621,19 +622,22 @@ public class EditorController implements IEditor {
     /**
      * Called on the text changed in document. Required for recalculate marks for active segment.
      */
-    void onTextChanged() {
+    void onTextChanged(DocumentEvent e) {
         Document3 doc = editor.getOmDocument();
         if (doc.trustedChangesInProgress) {
+            return;
+        }
+        if (!(e instanceof CompoundEdit)) {
+            // undo or redo
             return;
         }
         if (doc.isEditMode()) {
             m_docSegList[displayedEntryIndex].onActiveEntryChanged();
 
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    markerController.reprocessImmediately(m_docSegList[displayedEntryIndex]);
-                }
-            });
+            AbstractDocument.DefaultDocumentEvent attributesEdit = m_docSegList[displayedEntryIndex]
+                    .createDocumentChange();
+            markerController.reprocessImmediately(m_docSegList[displayedEntryIndex], attributesEdit);
+            ((CompoundEdit) e).addEdit(attributesEdit);
         }
     }
 
@@ -822,7 +826,7 @@ public class EditorController implements IEditor {
         Core.getNotes().clear();
 
         // then add new marks
-        markerController.reprocessImmediately(m_docSegList[displayedEntryIndex]);
+        markerController.reprocessImmediately(m_docSegList[displayedEntryIndex], null);
 
         editor.cancelUndo();
 
@@ -1399,7 +1403,7 @@ public class EditorController implements IEditor {
         CalcMarkersThread thread = markerController.markerThreads[markerController
                 .getMarkerIndex(ComesFromTMMarker.class.getName())];
         ((ComesFromTMMarker) thread.marker).setMark(sb.getSourceTextEntry(), text);
-        markerController.reprocessImmediately(sb);
+      //  markerController.reprocessImmediately(sb);
     }
 
     public String getCurrentTranslation() {

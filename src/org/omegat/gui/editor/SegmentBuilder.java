@@ -32,8 +32,11 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.swing.event.DocumentEvent;
+import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument.AttributeUndoableEdit;
 import javax.swing.text.Element;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.Position;
@@ -597,32 +600,76 @@ public class SegmentBuilder {
         insert(text, normal);
     }
 
-    public void resetTextAttributes() {
-        doc.removeUndoableEditListener(controller.editor.undoManager);
-        doc.trustedChangesInProgress = true;
-        try {
-            if (posSourceBeg != null) {
-                int sBeg = posSourceBeg.getOffset();
-                int sLen = posSourceLength;
-                AttributeSet attrs = attrs(true, false, false, false);
-                doc.setCharacterAttributes(sBeg, sLen, attrs, true);
-            }
-            if (active) {
-                int tBeg = doc.getTranslationStart();
-                int tEnd = doc.getTranslationEnd();
+    public void resetTextAttributes(AbstractDocument.DefaultDocumentEvent edit) {
+        if (posSourceBeg != null) {
+            int sBeg = posSourceBeg.getOffset();
+            int sLen = posSourceLength;
+            AttributeSet attrs = attrs(true, false, false, false);
+            applyAttributes(edit, sBeg, sLen, attrs, true);
+        }
+        if (active) {
+            int tBeg = doc.getTranslationStart();
+            int tEnd = doc.getTranslationEnd();
+            AttributeSet attrs = attrs(false, false, false, false);
+            applyAttributes(edit, tBeg, tEnd - tBeg, attrs, true);
+        } else {
+            if (posTranslationBeg != null) {
+                int tBeg = posTranslationBeg.getOffset();
+                int tLen = posTranslationLength;
                 AttributeSet attrs = attrs(false, false, false, false);
-                doc.setCharacterAttributes(tBeg, tEnd - tBeg, attrs, true);
-            } else {
-                if (posTranslationBeg != null) {
-                    int tBeg = posTranslationBeg.getOffset();
-                    int tLen = posTranslationLength;
-                    AttributeSet attrs = attrs(false, false, false, false);
-                    doc.setCharacterAttributes(tBeg, tLen, attrs, true);
-                }
+                applyAttributes(edit, tBeg, tLen, attrs, true);
             }
-        } finally {
-            doc.trustedChangesInProgress = false;
-            doc.addUndoableEditListener(controller.editor.undoManager);
+        }
+    }
+
+    /**
+     * Create document event for store attributes change.
+     */
+    public AbstractDocument.DefaultDocumentEvent createDocumentChange() {
+        if (!active) {
+            throw new RuntimeException("Segment must be active");
+        }
+        int beg;
+        if (posSourceBeg != null) {
+            beg = posSourceBeg.getOffset();
+        } else {
+            beg = doc.getTranslationStart();
+        }
+        int end = doc.getTranslationEnd();
+
+        return doc.new DefaultDocumentEvent(beg, end - beg, DocumentEvent.EventType.CHANGE);
+    }
+
+    /**
+     * Create edit for change attributes.
+     */
+    public void applyAttributes(AbstractDocument.DefaultDocumentEvent edit, int offset, int length, AttributeSet attrs,
+            boolean replace) {
+        if (edit == null) {
+            // just set attributes now
+            doc.trustedChangesInProgress = true;
+            try {
+                doc.setCharacterAttributes(offset, length, attrs, replace);
+            } finally {
+                doc.trustedChangesInProgress = false;
+            }
+            return;
+        }
+        doc.getElementBuffer().change(offset, length, edit);
+
+        int lastEnd;
+        for (int pos = offset; pos < (offset + length); pos = lastEnd) {
+            Element run = doc.getCharacterElement(offset);
+            lastEnd = run.getEndOffset();
+            if (pos == lastEnd) {
+                break;
+            }
+            MutableAttributeSet attr = (MutableAttributeSet) run.getAttributes();
+            edit.addEdit(new AttributeUndoableEdit(run, attrs.copyAttributes(), replace));
+            if (replace) {
+                attr.removeAttributes(attr);
+            }
+            attr.addAttributes(attrs);
         }
     }
 

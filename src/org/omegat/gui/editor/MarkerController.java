@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Queue;
 
 import javax.swing.SwingUtilities;
+import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Position;
@@ -166,10 +167,10 @@ public class MarkerController {
      * Reprocess one entry immediately, in current thread. Usually used for
      * active entry.
      */
-    public void reprocessImmediately(SegmentBuilder entryBuilder) {
+    public void reprocessImmediately(SegmentBuilder entryBuilder, AbstractDocument.DefaultDocumentEvent edit) {
         UIThreadsUtil.mustBeSwingThread();
 
-        entryBuilder.resetTextAttributes();
+        entryBuilder.resetTextAttributes(edit);
 
         List<EntryMarks> evs = new ArrayList<EntryMarks>();
         for (int i = 0; i < markerNames.length; i++) {
@@ -185,7 +186,7 @@ public class MarkerController {
                 Log.log(ex);
             }
         }
-        marksOutput(evs);
+        marksOutput(evs, edit);
     }
 
     /**
@@ -258,7 +259,7 @@ public class MarkerController {
                         evs.add(ev);
                     }
                 }
-                marksOutput(evs);
+                marksOutput(evs, null);
             }
         });
     }
@@ -266,14 +267,13 @@ public class MarkerController {
     /**
      * Output marks.
      */
-    private void marksOutput(List<EntryMarks> evs) {
+    private void marksOutput(List<EntryMarks> evs, AbstractDocument.DefaultDocumentEvent edit) {
         UIThreadsUtil.mustBeSwingThread();
 
         if (evs.isEmpty()) {
             return;
         }
         Document3 doc = ec.editor.getOmDocument();
-        doc.removeUndoableEditListener(ec.editor.undoManager);
         doc.trustedChangesInProgress = true;
         try {
             for (int i = 0; i < evs.size(); i++) {
@@ -286,7 +286,7 @@ public class MarkerController {
                         }
                         ev.builder.marks[ev.markerIndex] = new MarkInfo[ev.result.size()];
                         for (int j = 0; j < ev.result.size(); j++) {
-                            MarkInfo nm = new MarkInfo(ev.result.get(j), ev.builder, doc, highlighter);
+                            MarkInfo nm = new MarkInfo(ev.result.get(j), ev.builder, doc, highlighter, edit);
                             ev.builder.marks[ev.markerIndex][j] = nm;
                         }
                     } catch (BadLocationException ex) {
@@ -295,7 +295,6 @@ public class MarkerController {
             }
         } finally {
             doc.trustedChangesInProgress = false;
-            doc.addUndoableEditListener(ec.editor.undoManager);
         }
     }
 
@@ -306,7 +305,8 @@ public class MarkerController {
         Highlighter.Highlight highlight;
         Tooltip tooltip;
 
-        public MarkInfo(Mark m, SegmentBuilder sb, Document3 doc, Highlighter highlighter) throws BadLocationException {
+        public MarkInfo(Mark m, SegmentBuilder sb, Document3 doc, Highlighter highlighter,
+                AbstractDocument.DefaultDocumentEvent edit) throws BadLocationException {
             if (m.entryPart == Mark.ENTRY_PART.SOURCE && sb.getSourceText() == null) {
                 return;
             }
@@ -332,8 +332,7 @@ public class MarkerController {
                 tooltip = new Tooltip(doc, startOffset + m.startOffset, startOffset + m.endOffset, m.toolTipText);
             }
             if (m.attributes != null) {
-                doc.setCharacterAttributes(startOffset + m.startOffset, m.endOffset - m.startOffset, m.attributes,
-                        false);
+                sb.applyAttributes(edit, startOffset + m.startOffset, m.endOffset - m.startOffset, m.attributes, false);
             }
         }
     }

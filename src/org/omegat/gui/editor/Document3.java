@@ -66,6 +66,10 @@ public class Document3 extends DefaultStyledDocument {
         this.controller = controller;
     }
 
+    ElementBuffer getElementBuffer() {
+        return buffer;
+    }
+
     /**
      * Calculate the position of the start of the current translation
      */
