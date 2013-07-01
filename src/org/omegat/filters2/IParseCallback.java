@@ -66,4 +66,6 @@ public interface IParseCallback {
      * for multiple translations.
      */
     void linkPrevNextSegments();
+
+    void setPatchProtectedParts(boolean patch);
 }

@@ -38,6 +38,8 @@ import java.util.Map;
  * Filters shouldn't use Core, but use Context instead.
  * 
  * @author Alex Buloichik (alex73mail@gmail.com)
+ * 
+ * @deprecated IFilter2 should be used instead, what means filter supports protected parts
  */
 public interface IFilter {
     /**

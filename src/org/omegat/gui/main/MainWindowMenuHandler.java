@@ -36,8 +36,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -77,7 +75,6 @@ import org.omegat.util.Language;
 import org.omegat.util.Log;
 import org.omegat.util.OConsts;
 import org.omegat.util.OStrings;
-import org.omegat.util.PatternConsts;
 import org.omegat.util.Preferences;
 import org.omegat.util.StaticUtils;
 import org.omegat.util.StringUtil;
@@ -604,17 +601,6 @@ public class MainWindowMenuHandler {
         // insert tags
         SourceTextEntry ste = Core.getEditor().getCurrentEntry();
         allTags.addAll(Arrays.asList(ste.getProtectedParts().getParts()));
-        // insert other placeholders
-        // TODO: need to change after all filters will support protected
-        // parts
-        String sourceText = Core.getEditor().getCurrentEntry().getSrcText();
-        Pattern placeholderPattern = PatternConsts.getPlaceholderPattern();
-        Matcher placeholderMatcher = placeholderPattern.matcher(sourceText);
-        while (placeholderMatcher.find()) {
-            if (!allTags.contains(placeholderMatcher.group(0))) {
-                allTags.add(placeholderMatcher.group(0));
-            }
-        }
 
         String tr = Core.getEditor().getCurrentTranslation();
         for (String tag : allTags) {
@@ -634,17 +620,6 @@ public class MainWindowMenuHandler {
         // insert tags
         SourceTextEntry ste = Core.getEditor().getCurrentEntry();
         allTags.addAll(Arrays.asList(ste.getProtectedParts().getParts()));
-        // insert other placeholders
-        // TODO: need to change after all filters will support protected
-        // parts
-        String sourceText = Core.getEditor().getCurrentEntry().getSrcText();
-        Pattern placeholderPattern = PatternConsts.getPlaceholderPattern();
-        Matcher placeholderMatcher = placeholderPattern.matcher(sourceText);
-        while (placeholderMatcher.find()) {
-            if (!allTags.contains(placeholderMatcher.group(0))) {
-                allTags.add(placeholderMatcher.group(0));
-            }
-        }
 
         String tr = Core.getEditor().getCurrentTranslation();
         for (String tag : allTags) {

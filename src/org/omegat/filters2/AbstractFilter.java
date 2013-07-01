@@ -64,7 +64,7 @@ import org.omegat.util.OStrings;
  * @author Didier Briel
  * @author Guido Leenders
  */
-public abstract class AbstractFilter implements IFilter {
+public abstract class AbstractFilter implements IFilter2 {
 
     /**
      * This value represents to the user that the encoding is determined by the filter itself. "In code" the

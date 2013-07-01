@@ -42,7 +42,6 @@ import java.util.regex.Pattern;
  */
 public class PatternConsts {
 
-    private static final String RE_OMEGAT_TAG = "<\\/?[a-zA-Z]+[0-9]+\\/?>";
     private static final String RE_PRINTF_VARS = "%([1-9]+\\$)?([+-])?('.)?(-)?([0-9]*)(\\.[0-9]*)?[bcdeEfFgGinopsuxX%]";
     private static final String RE_SIMPLE_PRINTF_VARS = "%([1-9]+\\$)?([0-9]*)(\\.[0-9]*)?[bcdeEfFgGinopsuxX%]";
     private static final String RE_SIMPLE_JAVA_MESSAGEFORMAT_PATTERN_VARS = "\\{([0-9])+\\}";
@@ -98,12 +97,6 @@ public class PatternConsts {
      * omegat-specific tag (without leading &lt; and trailing &gt;).
      */
     public static final Pattern OMEGAT_TAG_ONLY = Pattern.compile("^\\/?[a-zA-Z]+[0-9]+\\/?$");
-
-    /**
-     * Pattern that matches omegat-specific tags (with leading &lt; and trailing
-     * &gt; in any place of a string).
-     */
-    public static final Pattern OMEGAT_TAG = Pattern.compile(RE_OMEGAT_TAG);
 
     /**
      * Pattern that matches omegat-specific tags (with leading &lt; and trailing
@@ -171,6 +164,8 @@ public class PatternConsts {
      */
     public static final Pattern PRINTF_VARS = Pattern
             .compile(RE_PRINTF_VARS);
+    public static final Pattern OMEGAT_TAG = Pattern
+            .compile(RE_PRINTF_VARS);
     /**
      * Pattern for detecting the placeholders in a printf-function string. It
      * detects only simple placeholders, without SIGN-, PADDING-, ALIGNMENT- and
@@ -185,7 +180,7 @@ public class PatternConsts {
     /**
      * Pattern for detecting OmegaT-tags and other placeholders (extended sprintf-variant) in texts
      */
-    public static final Pattern SIMPLE_PLACEHOLDERS = Pattern.compile(RE_OMEGAT_TAG+"|"+RE_PRINTF_VARS);
+    public static final Pattern SIMPLE_PLACEHOLDERS = Pattern.compile(RE_PRINTF_VARS+"|"+RE_PRINTF_VARS);
 
     /**
      * combined pattern for all placeholder tags
@@ -203,7 +198,7 @@ public class PatternConsts {
      */
     public static Pattern getPlaceholderPattern() {
         if (PLACEHOLDERS == null) {
-            String regexp = RE_OMEGAT_TAG;
+            String regexp = RE_PRINTF_VARS;
             if ("true".equalsIgnoreCase(Preferences.getPreference(Preferences.CHECK_ALL_PRINTF_TAGS))) {
                 regexp += "|"+RE_PRINTF_VARS;
             } else if ("true".equalsIgnoreCase(Preferences.getPreference(Preferences.CHECK_SIMPLE_PRINTF_TAGS))) {

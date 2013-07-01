@@ -34,6 +34,8 @@ package org.omegat.core.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.omegat.core.Core;
 import org.omegat.core.data.IProject.FileInfo;
@@ -137,13 +139,16 @@ public abstract class ParseEntry implements IParseCallback {
             // empty string - not need to save
             return;
         }
+        if (patchProtectedParts) {
+            patchProtectedParts(source, shortcutDetails);
+        }
 
         ParseEntryResult tmp = new ParseEntryResult();
 
         boolean removeSpaces = Core.getFilterMaster().getConfig().isRemoveSpacesNonseg();
-        source = stripSomeChars(source, tmp, m_config.isRemoveTags(), removeSpaces);
+        source = stripSomeChars(source, tmp, m_config.isRemoveTags() ? shortcutDetails : null, removeSpaces);
         if (translation != null) {
-            translation = stripSomeChars(translation, tmp, m_config.isRemoveTags(), removeSpaces);
+            translation = stripSomeChars(translation, tmp, m_config.isRemoveTags() ? shortcutDetails : null, removeSpaces);
         }
 
         if (shortcutDetails != null && shortcutDetails.isEmpty()) {
@@ -250,6 +255,37 @@ public abstract class ParseEntry implements IParseCallback {
             Shortcuts shortcutDetails, String segmentTranslation, boolean segmentTranslationFuzzy,
             String comment, String prevSegment, String nextSegment, String path);
 
+    boolean patchProtectedParts;
+
+    public void setPatchProtectedParts(boolean patch) {
+        patchProtectedParts = patch;
+    }
+
+    private static final String RE_OMEGAT_TAG = "<\\/?[a-zA-Z]+[0-9]+\\/?>";
+    /**
+     * Pattern that matches omegat-specific tags (with leading &lt; and trailing &gt; in any place of a
+     * string).
+     */
+    public static final Pattern OMEGAT_TAG = Pattern.compile(RE_OMEGAT_TAG);
+
+    /**
+     * Method for add protected parts for filters which don't support they yet. After all filters will support
+     * IFilter2, this method and tag patters should be removed.
+     */
+    public void patchProtectedParts(String source, Shortcuts shortcuts) {
+        Pattern placeholderPattern = OMEGAT_TAG;
+
+        for (ParseEntryQueueItem item : parseQueue) {
+            item.shortcutDetails = new Shortcuts();
+
+            Matcher placeholderMatcher = placeholderPattern.matcher(item.segmentSource);
+            while (placeholderMatcher.find()) {
+                item.shortcutDetails.shortcuts.add(placeholderMatcher.group());
+                item.shortcutDetails.shortcutDetails.add(placeholderMatcher.group());
+            }
+        }
+    }
+
     /**
      * Strip some chars for represent string in UI.
      * 
@@ -257,7 +293,7 @@ public abstract class ParseEntry implements IParseCallback {
      *            source string to strip chars
      * @return result
      */
-    static String stripSomeChars(final String src, final ParseEntryResult per, boolean removeTags, boolean removeSpaces) {
+    static String stripSomeChars(final String src, final ParseEntryResult per, Shortcuts shortcutsToRemove, boolean removeSpaces) {
         String r = src;
 
         /**
@@ -305,8 +341,12 @@ public abstract class ParseEntry implements IParseCallback {
         if (per.cr)
             r = r.replace("\r", "\n");
 
-        if(removeTags) {
-            r = PatternConsts.OMEGAT_TAG.matcher(r).replaceAll("");
+        if (shortcutsToRemove != null) {
+            for (String s : shortcutsToRemove.shortcuts) {
+                r = r.replace(s, "");
+            }
+            shortcutsToRemove.shortcuts.clear();
+            shortcutsToRemove.shortcutDetails.clear();
         }
 
         r = StaticUtils.fixChars(r);

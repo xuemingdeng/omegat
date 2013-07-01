@@ -100,6 +100,9 @@ public abstract class TestFilterBase extends TestCore {
 
             public void linkPrevNextSegments() {
             }
+
+            public void setPatchProtectedParts(boolean patch) {
+            }
         });
 
         return result;
@@ -122,6 +125,9 @@ public abstract class TestFilterBase extends TestCore {
             }
 
             public void linkPrevNextSegments() {
+            }
+
+            public void setPatchProtectedParts(boolean patch) {
             }
         });
 
@@ -154,6 +160,9 @@ public abstract class TestFilterBase extends TestCore {
 
             public void linkPrevNextSegments() {
             }
+
+            public void setPatchProtectedParts(boolean patch) {
+            }
         });
     }
 
@@ -185,6 +194,9 @@ public abstract class TestFilterBase extends TestCore {
             }
 
             public void linkPrevNextSegments() {
+            }
+
+            public void setPatchProtectedParts(boolean patch) {
             }
         });
 

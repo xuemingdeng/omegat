@@ -172,6 +172,9 @@ public abstract class TmxComplianceBase extends TestCase {
 
             public void linkPrevNextSegments() {
             }
+
+            public void setPatchProtectedParts(boolean patch) {
+            }
         };
         filter.parseFile(sourceFile, config, context, callback);
 

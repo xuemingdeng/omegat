@@ -27,8 +27,6 @@ package org.omegat.gui.editor.mark;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Highlighter.HighlightPainter;
@@ -38,7 +36,6 @@ import org.omegat.core.data.SourceTextEntry;
 import org.omegat.gui.editor.Document3;
 import org.omegat.gui.editor.EditorController;
 import org.omegat.util.OStrings;
-import org.omegat.util.PatternConsts;
 import org.omegat.util.gui.Styles;
 
 /**
@@ -52,7 +49,6 @@ public class ProtectedPartsMarker implements IMarker {
             null);
 
     String tagToolTip = OStrings.getString("MARKER_TAG");
-    Pattern tagPattern = PatternConsts.getPlaceholderPattern();
 
     @Override
     public List<Mark> getMarksForEntry(SourceTextEntry ste, String sourceText, String translationText, boolean isActive)
@@ -88,33 +84,6 @@ public class ProtectedPartsMarker implements IMarker {
                     m.toolTipText = escapeHtml(ste.getProtectedParts().getDetail(tag));
                     r.add(m);
                 }
-            }
-        }
-        // find painters which not in protected parts
-        if (isActive || Core.getEditor().getSettings().isDisplaySegmentSources() || translationText == null) {
-            Matcher match = tagPattern.matcher(sourceText);
-            while (match.find()) {
-                if (ste.getProtectedParts().contains(match.group())) {
-                    continue;
-                }
-                Mark m = new Mark(Mark.ENTRY_PART.SOURCE, match.start(), match.end());
-                m.painter = painter;
-                m.attributes = attrs;
-                m.toolTipText = tagToolTip;
-                r.add(m);
-            }
-        }
-        if (translationText != null) {
-            Matcher match = tagPattern.matcher(translationText);
-            while (match.find()) {
-                if (ste.getProtectedParts().contains(match.group())) {
-                    continue;
-                }
-                Mark m = new Mark(Mark.ENTRY_PART.TRANSLATION, match.start(), match.end());
-                m.painter = painter;
-                m.attributes = attrs;
-                m.toolTipText = tagToolTip;
-                r.add(m);
             }
         }
 

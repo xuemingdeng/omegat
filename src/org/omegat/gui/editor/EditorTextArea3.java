@@ -38,8 +38,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JEditorPane;
 import javax.swing.JPopupMenu;
@@ -61,7 +59,6 @@ import javax.swing.text.ViewFactory;
 import org.omegat.core.CoreEvents;
 import org.omegat.core.data.SourceTextEntry;
 import org.omegat.gui.editor.autocompleter.AutoCompleter;
-import org.omegat.util.PatternConsts;
 import org.omegat.util.StaticUtils;
 import org.omegat.util.StringUtil;
 import org.omegat.util.gui.DockingUI;
@@ -440,33 +437,6 @@ public class EditorTextArea3 extends JEditorPane {
                 }
             }
         }
-        // iterate by tags by patterns
-        Pattern placeholderPattern = PatternConsts.getPlaceholderPattern();
-        Matcher placeholderMatcher = placeholderPattern.matcher(text);
-        while (placeholderMatcher.find()) {
-            String tag = placeholderMatcher.group(0);
-            if (checkTagStart) {
-                if (StringUtil.isSubstringAfter(text, off, tag)) {
-                    int pos = off + doc.getTranslationStart() + tag.length();
-                    if (withShift) {
-                        getCaret().moveDot(pos);
-                    } else {
-                        getCaret().setDot(pos);
-                    }
-                    return true;
-                }
-            } else {
-                if (StringUtil.isSubstringBefore(text, off, tag)) {
-                    int pos = off + doc.getTranslationStart() - tag.length();
-                    if (withShift) {
-                        getCaret().moveDot(pos);
-                    } else {
-                        getCaret().setDot(pos);
-                    }
-                    return true;
-                }
-            }
-        }
         return false;
     }
 
@@ -497,25 +467,6 @@ public class EditorTextArea3 extends JEditorPane {
                         doc.remove(pos, tag.length());
                         return true;
                     }
-                }
-            }
-        }
-        // iterate by tags by patterns
-        Pattern placeholderPattern = PatternConsts.getPlaceholderPattern();
-        Matcher placeholderMatcher = placeholderPattern.matcher(text);
-        while (placeholderMatcher.find()) {
-            String tag = placeholderMatcher.group(0);
-            if (checkTagStart) {
-                if (StringUtil.isSubstringAfter(text, off, tag)) {
-                    int pos = off + doc.getTranslationStart();
-                    doc.remove(pos, tag.length());
-                    return true;
-                }
-            } else {
-                if (StringUtil.isSubstringBefore(text, off, tag)) {
-                    int pos = off + doc.getTranslationStart() - tag.length();
-                    doc.remove(pos, tag.length());
-                    return true;
                 }
             }
         }
@@ -556,16 +507,6 @@ public class EditorTextArea3 extends JEditorPane {
                             select(p, p + tag.length());
                             return true;
                         }
-                    }
-                }
-                Pattern placeholderPattern = PatternConsts.getPlaceholderPattern();
-                Matcher placeholderMatcher = placeholderPattern.matcher(text);
-                while (placeholderMatcher.find()) {
-                    if (placeholderMatcher.start() <= off && off < placeholderMatcher.end()) {
-                        int pb = segment.getStartPosition() + placeholderMatcher.start();
-                        int pe = segment.getStartPosition() + placeholderMatcher.end();
-                        select(pb, pe);
-                        return true;
                     }
                 }
             } catch (BadLocationException ex) {

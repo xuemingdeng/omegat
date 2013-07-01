@@ -121,14 +121,6 @@ public class DocumentFilter3 extends DocumentFilter {
                     }
                 }
             }
-            // check if inside tag by pattern
-            Pattern placeholderPattern = PatternConsts.getPlaceholderPattern();
-            Matcher placeholderMatcher = placeholderPattern.matcher(text);
-            while (placeholderMatcher.find()) {
-                if (placeholderMatcher.start() < off && off < placeholderMatcher.end()) {
-                    return false;
-                }
-            }
         }
 
         return true;

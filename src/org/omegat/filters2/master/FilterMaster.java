@@ -60,6 +60,7 @@ import org.omegat.filters2.AbstractFilter;
 import org.omegat.filters2.FilterContext;
 import org.omegat.filters2.IAlignCallback;
 import org.omegat.filters2.IFilter;
+import org.omegat.filters2.IFilter2;
 import org.omegat.filters2.IParseCallback;
 import org.omegat.filters2.ITranslateCallback;
 import org.omegat.filters2.Instance;
@@ -192,6 +193,10 @@ public class FilterMaster {
             fc.setOutEncoding(lookup.outFilesInfo.getTargetEncoding());
 
             filterObject = lookup.filterObject;
+
+            if (!(filterObject instanceof IFilter2)) {
+                parseCallback.setPatchProtectedParts(true);
+            }
 
             filterObject.parseFile(inFile, lookup.config, fc, parseCallback);
         } catch (Exception ioe) {
