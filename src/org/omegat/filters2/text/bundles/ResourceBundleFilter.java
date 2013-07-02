@@ -38,9 +38,12 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.omegat.filters2.AbstractFilter;
 import org.omegat.filters2.Instance;
+import org.omegat.filters2.Shortcuts;
 import org.omegat.util.LinebreakPreservingReader;
 import org.omegat.util.NullBufferedWriter;
 import org.omegat.util.OConsts;
@@ -57,6 +60,8 @@ import org.omegat.util.StringUtil;
  * @author Martin Fleurke
  */
 public class ResourceBundleFilter extends AbstractFilter {
+
+    protected static final Pattern RE_PARAMETERS = Pattern.compile("\\{[0-9]\\}");
 
     protected Map<String, String> align;
 
@@ -357,7 +362,13 @@ public class ResourceBundleFilter extends AbstractFilter {
 
     protected String process(String key, String value) {
         if (entryParseCallback != null) {
-            entryParseCallback.addEntry(key, value, null, false, null, null, this, null);
+            Shortcuts shortcuts = new Shortcuts();
+            Matcher m = RE_PARAMETERS.matcher(value);
+            while (m.find()) {
+                shortcuts.shortcuts.add(m.group());
+                shortcuts.shortcutDetails.add(m.group());
+            }
+            entryParseCallback.addEntry(key, value, null, false, null, null, this, shortcuts);
             return value;
         } else if (entryTranslateCallback != null) {
             String trans = entryTranslateCallback.getTranslation(key, value, null);
