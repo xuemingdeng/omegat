@@ -162,6 +162,14 @@ public class SourceTextEntry {
 
     /**
      * Class for store protected parts info.
+     * 
+     * "Protected part" is common term for :
+     * 
+     * <m0>IBM</m0> - protected text(IBM) with linked tags (<m0>,</m0>)
+     * 
+     * <i1> - tag
+     * 
+     * $1 - placeholder
      */
     public static class ProtectedParts {
         protected String[] parts;
