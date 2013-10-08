@@ -412,7 +412,7 @@ public class Main {
             System.exit(1);
         }
 
-        System.out.println(OStrings.getString("INITIALIZING"));
+        System.out.println(OStrings.getString("CONSOLE_INITIALIZING"));
         try {
             Core.initializeConsole(params);
         } catch (Throwable ex) {
