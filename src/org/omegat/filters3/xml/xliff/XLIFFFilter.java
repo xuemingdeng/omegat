@@ -49,6 +49,7 @@ import org.xml.sax.Attributes;
 public class XLIFFFilter extends XMLFilter {
 
     private String resname;
+    private boolean skip;
 
     /**
      * Register plugin into OmegaT.
@@ -177,6 +178,9 @@ public class XLIFFFilter extends XMLFilter {
         if (atts != null && path.endsWith("trans-unit")){
             resname = atts.getValue("resname");
         }
+        if ("/xliff/file/header".equals(path)) {
+            skip = true;
+        }
     }
 
     @Override
@@ -184,6 +188,14 @@ public class XLIFFFilter extends XMLFilter {
         if (path.endsWith("trans-unit")){
             resname = null;
         }
+        if ("/xliff/file/header".equals(path)) {
+            skip = false;
+        }
+    }
+
+    @Override
+    public boolean skip() {
+        return skip;
     }
 
     @Override

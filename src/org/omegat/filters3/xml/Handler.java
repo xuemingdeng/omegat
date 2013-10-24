@@ -399,8 +399,10 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
     }
 
     private void queueText(String s) {
-        translator.text(s);
-        
+        if (!translator.skip()) {
+            translator.text(s);
+        }
+
         // TODO: ideally, xml:space=preserved would be handled at this level, but that would suppose
         // knowing here whether we're inside a preformatted tag, etc.
         if (internalEntityStarted != null && s.equals(internalEntityStarted.getValue()))
@@ -466,6 +468,21 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
         }
     }
 
+    /**
+     * Queue tag that should be skipped from editor, including content and all subtags.
+     */
+    private void queueSkippedTag(String tag, Attributes attributes) {
+        Tag xmltag = null;
+        setSpacePreservingTag(XMLUtils.convertAttributes(attributes));
+        if (xmltag == null) {
+            xmltag = new XMLTag(tag, getShortcut(tag), Tag.Type.BEGIN, attributes,
+                    this.translator.getTargetLanguage());
+            xmlTagName.push(xmltag.getTag());
+            xmlTagAttributes.push(xmltag.getAttributes());
+        }
+        currEntry().add(xmltag);
+    }
+
     private void queueEndTag(String tag) {
         int len = currEntry().size();
         if (len > 0
@@ -488,6 +505,10 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
     }
 
     private void queueComment(String comment) {
+        if (translator.skip()) {
+            return;
+        }
+
         translator.comment(comment);
         
         currEntry().add(new Comment(comment));
@@ -503,42 +524,60 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
 
     /** Is called when the tag is started. */
     private void start(String tag, Attributes attributes) throws SAXException, TranslationException {
+        boolean prevSkip = translator.skip();
         translatorTagStart(tag, attributes);
-        
-        if (isOutOfTurnTag(tag)) {
-            XMLOutOfTurnTag ootTag = new XMLOutOfTurnTag(dialect, this, tag, getShortcut(tag), attributes);
-            currEntry().add(ootTag);
-            outofturnEntries.push(ootTag.getEntry());
+
+        if (!translator.skip()) {
+            if (isOutOfTurnTag(tag)) {
+                XMLOutOfTurnTag ootTag = new XMLOutOfTurnTag(dialect, this, tag, getShortcut(tag), attributes);
+                currEntry().add(ootTag);
+                outofturnEntries.push(ootTag.getEntry());
+            } else {
+                if (isParagraphTag(tag, XMLUtils.convertAttributes(attributes)) && !collectingOutOfTurnText()
+                        && !collectingIntactText()) {
+                    translateAndFlush();
+                }
+                queueTag(tag, attributes);
+            }
         } else {
-            if (isParagraphTag(tag, XMLUtils.convertAttributes(attributes)) && !collectingOutOfTurnText()
-                    && !collectingIntactText()) {
+            if (!prevSkip) {
+                // start skipping from this tags - need to flush translation
                 translateAndFlush();
             }
-            queueTag(tag, attributes);
+            queueSkippedTag(tag, attributes);
         }
     }
 
     /** Is called when the tag is ended. */
     private void end(String tag) throws SAXException, TranslationException {
-        if (collectingIntactText() && tag.equals(intacttagName)
-                && (isIntactTag(tag, null) || isContentBasedTag(tag, null))) {
-            intacttagEntry = null;
-            intacttagName = null;
-            intacttagAttributes = null;
-            removeTranslatableTag();
-        } else if (collectingOutOfTurnText() && isOutOfTurnTag(tag)) {
-            translateButDontFlash();
-            outofturnEntries.pop();
+        boolean prevSkip = translator.skip();
+        if (!translator.skip()) {
+            if (collectingIntactText() && tag.equals(intacttagName)
+                    && (isIntactTag(tag, null) || isContentBasedTag(tag, null))) {
+                intacttagEntry = null;
+                intacttagName = null;
+                intacttagAttributes = null;
+                removeTranslatableTag();
+            } else if (collectingOutOfTurnText() && isOutOfTurnTag(tag)) {
+                translateButDontFlash();
+                outofturnEntries.pop();
+            } else {
+                queueEndTag(tag);
+                // TODO: If a file doesn't contain any paragraph tag,
+                // the translatable content will be lost
+                if (isParagraphTag(tag) && !collectingOutOfTurnText() && !collectingIntactText())
+                    translateAndFlush();
+                removeTranslatableTag();
+            }
         } else {
             queueEndTag(tag);
-            // TODO: If a file doesn't contain any paragraph tag,
-            // the translatable content will be lost
-            if (isParagraphTag(tag) && !collectingOutOfTurnText() && !collectingIntactText())
-                translateAndFlush();
-            removeTranslatableTag();
         }
         
         translatorTagEnd(tag);
+        if (!translator.skip() && prevSkip) {
+            // stop skipping from this tag - need to flush without translate
+            flushButDontTranslate();
+        }
     }
 
     /**
@@ -587,6 +626,18 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
      */
     private void translateAndFlush() throws SAXException, TranslationException {
         translateButDontFlash();
+        try {
+            currWriter().write(currEntry().translationToOriginal());
+        } catch (IOException e) {
+            throw new SAXException(e);
+        }
+        currEntry().clear();
+    }
+
+    /**
+     * Write tag's content without translaton. Used for skipped tags.
+     */
+    private void flushButDontTranslate() throws SAXException, TranslationException {
         try {
             currWriter().write(currEntry().translationToOriginal());
         } catch (IOException e) {
