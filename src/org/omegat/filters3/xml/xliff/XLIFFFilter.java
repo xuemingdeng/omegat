@@ -49,7 +49,7 @@ import org.xml.sax.Attributes;
 public class XLIFFFilter extends XMLFilter {
 
     private String resname;
-    private boolean skip;
+    private boolean ignored;
 
     /**
      * Register plugin into OmegaT.
@@ -179,7 +179,7 @@ public class XLIFFFilter extends XMLFilter {
             resname = atts.getValue("resname");
         }
         if ("/xliff/file/header".equals(path)) {
-            skip = true;
+            ignored = true;
         }
     }
 
@@ -189,13 +189,13 @@ public class XLIFFFilter extends XMLFilter {
             resname = null;
         }
         if ("/xliff/file/header".equals(path)) {
-            skip = false;
+            ignored = false;
         }
     }
 
     @Override
-    public boolean skip() {
-        return skip;
+    public boolean isInIgnored() {
+        return ignored;
     }
 
     @Override

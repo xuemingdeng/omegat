@@ -399,7 +399,7 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
     }
 
     private void queueText(String s) {
-        if (!translator.skip()) {
+        if (!translator.isInIgnored()) {
             translator.text(s);
         }
 
@@ -471,7 +471,7 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
     /**
      * Queue tag that should be skipped from editor, including content and all subtags.
      */
-    private void queueSkippedTag(String tag, Attributes attributes) {
+    private void queueIgnoredTag(String tag, Attributes attributes) {
         Tag xmltag = null;
         setSpacePreservingTag(XMLUtils.convertAttributes(attributes));
         if (xmltag == null) {
@@ -505,12 +505,9 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
     }
 
     private void queueComment(String comment) {
-        if (translator.skip()) {
-            return;
+        if (!translator.isInIgnored()) {
+            translator.comment(comment);
         }
-
-        translator.comment(comment);
-        
         currEntry().add(new Comment(comment));
     }
 
@@ -524,10 +521,10 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
 
     /** Is called when the tag is started. */
     private void start(String tag, Attributes attributes) throws SAXException, TranslationException {
-        boolean prevSkip = translator.skip();
+        boolean prevIgnored = translator.isInIgnored();
         translatorTagStart(tag, attributes);
 
-        if (!translator.skip()) {
+        if (!translator.isInIgnored()) {
             if (isOutOfTurnTag(tag)) {
                 XMLOutOfTurnTag ootTag = new XMLOutOfTurnTag(dialect, this, tag, getShortcut(tag), attributes);
                 currEntry().add(ootTag);
@@ -540,18 +537,18 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
                 queueTag(tag, attributes);
             }
         } else {
-            if (!prevSkip) {
-                // start skipping from this tags - need to flush translation
+            if (!prevIgnored) {
+                // start ignored from this tags - need to flush translation
                 translateAndFlush();
             }
-            queueSkippedTag(tag, attributes);
+            queueIgnoredTag(tag, attributes);
         }
     }
 
     /** Is called when the tag is ended. */
     private void end(String tag) throws SAXException, TranslationException {
-        boolean prevSkip = translator.skip();
-        if (!translator.skip()) {
+        boolean prevIgnored = translator.isInIgnored();
+        if (!translator.isInIgnored()) {
             if (collectingIntactText() && tag.equals(intacttagName)
                     && (isIntactTag(tag, null) || isContentBasedTag(tag, null))) {
                 intacttagEntry = null;
@@ -574,8 +571,8 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
         }
         
         translatorTagEnd(tag);
-        if (!translator.skip() && prevSkip) {
-            // stop skipping from this tag - need to flush without translate
+        if (!translator.isInIgnored() && prevIgnored) {
+            // stop ignored from this tag - need to flush without translate
             flushButDontTranslate();
         }
     }
@@ -635,7 +632,7 @@ public class Handler extends DefaultHandler implements LexicalHandler, DeclHandl
     }
 
     /**
-     * Write tag's content without translaton. Used for skipped tags.
+     * Write tag's content without translation. Used for ignored tags.
      */
     private void flushButDontTranslate() throws SAXException, TranslationException {
         try {

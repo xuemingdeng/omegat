@@ -115,9 +115,9 @@ interface Translator {
     void text(String text);
     
     /**
-     * Returns true if current section should be skipped by parser.
+     * Returns true if current section should be ignored by parser.
      */
-    boolean skip();
+    boolean isInIgnored();
 
     Language getTargetLanguage();
 }
