@@ -459,7 +459,7 @@ public abstract class AbstractFilter implements IFilter {
         }
     }
 
-    public final void alignFile(File inFile, File outFile, Map<String, String> config, FilterContext fc,
+    public void alignFile(File inFile, File outFile, Map<String, String> config, FilterContext fc,
             IAlignCallback callback) throws Exception {
         entryParseCallback = null;
         entryTranslateCallback = null;

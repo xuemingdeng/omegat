@@ -26,10 +26,17 @@
 
 package org.omegat.filters3.xml.android;
 
+import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.omegat.filters2.FilterContext;
+import org.omegat.filters2.IAlignCallback;
+import org.omegat.filters2.IFilter;
+import org.omegat.filters2.IParseCallback;
 import org.omegat.filters2.Instance;
 import org.omegat.filters2.Shortcuts;
 import org.omegat.filters3.xml.XMLFilter;
@@ -124,5 +131,49 @@ public class AndroidFilter extends XMLFilter {
             }
         }
         return r.replace("'", "\\'");
+    }
+
+    @Override
+    public void alignFile(File inFile, File outFile, Map<String, String> config, FilterContext fc,
+            IAlignCallback callback) throws Exception {
+        final Map<String, String> sourceById = new HashMap<String, String>();
+        final Map<String, String> translationById = new HashMap<String, String>();
+        parseFile(inFile, config, fc, new IParseCallback() {
+            public void linkPrevNextSegments() {
+                throw new RuntimeException("Not supported");
+            }
+
+            public void addEntry(String id, String source, String translation, boolean isFuzzy, String comment,
+                    IFilter filter) {
+                throw new RuntimeException("Not supported");
+            }
+
+            public void addEntry(String id, String source, String translation, boolean isFuzzy, String comment,
+                    String path, IFilter filter, Shortcuts shortcutDetails) {
+                sourceById.put(id, source);
+            }
+        });
+        parseFile(outFile, config, fc, new IParseCallback() {
+            public void linkPrevNextSegments() {
+                throw new RuntimeException("Not supported");
+            }
+
+            public void addEntry(String id, String source, String translation, boolean isFuzzy, String comment,
+                    IFilter filter) {
+                throw new RuntimeException("Not supported");
+            }
+
+            public void addEntry(String id, String source, String translation, boolean isFuzzy, String comment,
+                    String path, IFilter filter, Shortcuts shortcutDetails) {
+                translationById.put(id, source);
+            }
+        });
+        for (String id : sourceById.keySet()) {
+            String s = sourceById.get(id);
+            String t = translationById.get(id);
+            if (t != null && !s.equals(t)) {
+                callback.addTranslation(id, s, t, false, null, this);
+            }
+        }
     }
 }
