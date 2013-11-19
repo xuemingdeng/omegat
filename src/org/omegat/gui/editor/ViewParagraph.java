@@ -52,14 +52,36 @@ public class ViewParagraph extends ParagraphView {
 
     @Override
     public void removeUpdate(DocumentEvent e, Shape a, ViewFactory f) {
+        if (isOutside(e)) {
+            // workaround for performance issue in 1.7.0_45
+            return;
+        }
         super.removeUpdate(e, a, f);
         resetBreakSpots();
     }
 
     @Override
     public void insertUpdate(DocumentEvent e, Shape a, ViewFactory f) {
+        if (isOutside(e)) {
+            // workaround for performance issue in 1.7.0_45
+            return;
+        }
         super.insertUpdate(e, a, f);
         resetBreakSpots();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e, Shape a, ViewFactory f) {
+        if (isOutside(e)) {
+            // workaround for performance issue in 1.7.0_45
+            return;
+        }
+        super.changedUpdate(e, a, f);
+        resetBreakSpots();
+    }
+
+    private boolean isOutside(DocumentEvent e) {
+        return e.getOffset() + e.getLength() < getStartOffset() || getEndOffset() < e.getOffset();
     }
 
     private void resetBreakSpots() {
