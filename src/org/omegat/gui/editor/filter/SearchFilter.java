@@ -3,7 +3,7 @@
           with fuzzy matching, translation memory, keyword search, 
           glossaries, and translation leveraging into updated projects.
 
- Copyright (C) 2010-2013 Alex Buloichik
+ Copyright (C) 2013 Alex Buloichik
                Home page: http://www.omegat.org/
                Support center: http://groups.yahoo.com/group/OmegaT/
 
@@ -23,38 +23,45 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************/
 
-package org.omegat.core.search;
+package org.omegat.gui.editor.filter;
+
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.omegat.core.Core;
+import org.omegat.core.data.SourceTextEntry;
+import org.omegat.gui.editor.IEditorFilter;
 
 /**
- * Class for store info about matching position.
+ * Editor filter implementation.
  * 
  * @author Alex Buloichik (alex73mail@gmail.com)
  */
-public class SearchMatch implements Comparable<SearchMatch> {
-    public int start, end;
+public class SearchFilter implements IEditorFilter {
+    private final Set<Integer> entriesList = new HashSet<Integer>();
+    private FilterBarSearch controlComponent;
 
-    public SearchMatch(int start, int end) {
-        this.start = start;
-        this.end = end;
+    public SearchFilter(List<Integer> entries) {
+        entriesList.addAll(entries);
+        controlComponent = new FilterBarSearch();
+        controlComponent.btnRemoveFilter.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Core.getEditor().removeFilter();
+            }
+        });
     }
 
-    public int compareTo(SearchMatch o) {
-        int diff = start - o.start;
-        if (diff == 0) {
-            diff = end - o.end;
-        }
-        return diff;
+    @Override
+    public boolean allowed(SourceTextEntry ste) {
+        return entriesList.contains(ste.entryNum());
     }
 
-    public int getStart() {
-        return start;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public int getLength() {
-        return end - start;
+    @Override
+    public Component getControlComponent() {
+        return controlComponent;
     }
 }
