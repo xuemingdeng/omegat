@@ -47,7 +47,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1247,9 +1246,37 @@ public class RealProject implements IProject {
             for (TMXEntry e : tmx.getEntries()) {
                 if (existSources.contains(e.source)) {
                     // source exist
-                    if (!projectTMX.defaults.containsKey(e.source)) {
-                        // translation not exist
+                    TMXEntry old = projectTMX.defaults.get(e.source);
+                    if (old == null) {
+                        // translation not exist - get from tmx
                         projectTMX.defaults.put(e.source, e);
+                        e.autoType = TMXEntry.AUTO_TYPE.AUTO;
+                    } else {
+                        // translation exist - get from tmx by priority only in "auto" case
+                        if (old.autoType != null && e.autoType != null) {
+                            boolean replace;
+                            switch (old.autoType) {
+                            case xICE:
+                                replace = e.autoType == TMXEntry.AUTO_TYPE.xICE;
+                                break;
+                            case x100pc:
+                                replace = e.autoType == TMXEntry.AUTO_TYPE.xICE
+                                        || e.autoType == TMXEntry.AUTO_TYPE.x100pc;
+                                break;
+                            case AUTO:
+                                replace = e.autoType == TMXEntry.AUTO_TYPE.xICE
+                                        || e.autoType == TMXEntry.AUTO_TYPE.x100pc
+                                        || e.autoType == TMXEntry.AUTO_TYPE.AUTO;
+                                break;
+                            default:
+                                replace = true;
+                            }
+                            if (replace && old.autoId != null && e.autoId != null) {
+                                if (!old.autoId.equals(e.autoId)) {
+                                    replace = false;
+                                }
+                            }
+                        }
                     }
                 }
             }

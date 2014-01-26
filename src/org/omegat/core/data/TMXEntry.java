@@ -6,6 +6,7 @@
  Copyright (C) 2010 Alex Buloichik
                2012 Guido Leenders, Thomas Cordonnier
                2013 Aaron Madlon-Kay
+               2014 Alex Buloichik
                Home page: http://www.omegat.org/
                Support center: http://groups.yahoo.com/group/OmegaT/
 
@@ -39,6 +40,10 @@ import java.util.Map;
  * @author Aaron Madlon-Kay
  */
 public class TMXEntry {
+    public enum AUTO_TYPE {
+        xICE, x100pc, AUTO;
+    }
+
     public final String source;
     public final String translation;
     public final String changer;
@@ -48,6 +53,8 @@ public class TMXEntry {
     public final String note;
     public final boolean defaultTranslation;
     public final Map<String,String> properties;
+    public AUTO_TYPE autoType;
+    public String autoId;
 
     public TMXEntry(String source, String translation, String changer, long changeDate,
             String creator, long creationDate, String note, boolean defaultTranslation,
@@ -60,6 +67,22 @@ public class TMXEntry {
         this.creationDate = creationDate;
         this.note = note;
         this.defaultTranslation = defaultTranslation;
+        if (properties != null) {
+            autoId = properties.remove("x-id");
+            if (properties.containsKey("x-ice")) {
+                autoType = AUTO_TYPE.xICE;
+                properties.remove("x-ice");
+            } else if (properties.containsKey("x-100pc")) {
+                autoType = AUTO_TYPE.x100pc;
+                properties.remove("x-100pc");
+            } else if (properties.containsKey("x-auto")) {
+                autoType = AUTO_TYPE.AUTO;
+                properties.remove("x-auto");
+            }
+            if (properties.isEmpty()) {
+                properties = null;
+            }
+        }
         this.properties = properties;
     }
 

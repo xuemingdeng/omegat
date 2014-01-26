@@ -173,7 +173,22 @@ public class TMXWriter2 {
                 xml.writeCharacters(FileUtil.LINE_SEPARATOR);
             }
         }
-        
+        if (entry.autoId != null) {
+            writeProp("x-id", entry.autoId);
+        }
+        if (entry.autoType != null) {
+            switch (entry.autoType) {
+            case xICE:
+                writeProp("x-ice", null);
+                break;
+            case x100pc:
+                writeProp("x-100pc", null);
+                break;
+            default:
+                writeProp("x-auto", null);
+                break;
+            }
+        }
         // add note
         if (entry.note != null && !entry.note.equals("")) {
             String note = StaticUtils.fixChars(entry.note);
@@ -251,6 +266,20 @@ public class TMXWriter2 {
 
         xml.writeCharacters("    ");
         xml.writeEndElement(); // tu
+        xml.writeCharacters(FileUtil.LINE_SEPARATOR);
+    }
+
+    private void writeProp(String type, String value) throws Exception {
+        xml.writeCharacters("      ");
+        if (value != null) {
+            xml.writeStartElement("prop");
+            xml.writeAttribute("type", type);
+            xml.writeCharacters(value);
+            xml.writeEndElement(); // prop
+        } else {
+            xml.writeEmptyElement("prop");
+            xml.writeAttribute("type", type);
+        }
         xml.writeCharacters(FileUtil.LINE_SEPARATOR);
     }
 
