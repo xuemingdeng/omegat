@@ -142,6 +142,13 @@ public class FalseFriendsTest extends TestCore {
 
             public void closeProject() {
             }
+
+            public List<String> getSourceFilesOrder() {
+                return null;
+            }
+
+            public void setSourceFilesOrder(List<String> filesList) {
+            }
         });
     }
 
