@@ -7,6 +7,7 @@
                2009 Martin Fleurke, Alex Buloichik, Didier Briel
                2012 Aaron Madlon-Kay
                2013 Kyle Katarn, Aaron Madlon-Kay
+               2014 Alex Buloichik
                Home page: http://www.omegat.org/
                Support center: http://groups.yahoo.com/group/OmegaT/
 
