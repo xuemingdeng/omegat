@@ -30,6 +30,7 @@ package org.omegat.core.data;
 
 import org.omegat.util.StringUtil;
 
+import java.util.Collections;
 import java.util.Map;
  
 /**
@@ -83,7 +84,7 @@ public class TMXEntry {
                 properties = null;
             }
         }
-        this.properties = properties;
+        this.properties = Collections.unmodifiableMap(properties);
     }
 
     public TMXEntry(String source, String translation, boolean defaultTranslation) {

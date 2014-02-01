@@ -1790,6 +1790,13 @@ public class EditorController implements IEditor {
         setMenuEnabled();
     }
 
+    @Override
+    public void registerIdenticalTranslation() {
+        UIThreadsUtil.mustBeSwingThread();
+
+        //TODO
+    }
+
     /*
      * {@inheritDoc}
      */
