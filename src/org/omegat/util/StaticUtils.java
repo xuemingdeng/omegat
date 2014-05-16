@@ -114,7 +114,7 @@ public class StaticUtils {
      * Builds a list of format tags within the supplied string. Format tags are
      * 'protected parts' and OmegaT style tags: &lt;xx02&gt; or &lt;/yy01&gt;.
      */
-    public static void buildTagList(String str, ProtectedPart[] protectedParts, List<String> tagList) {
+    public static List<TagOrder> buildTagList(String str, ProtectedPart[] protectedParts, List<String> tagList) {
         List<TagOrder> tags = new ArrayList<TagOrder>();
         if (protectedParts != null) {
             for (ProtectedPart pp : protectedParts) {
@@ -126,7 +126,7 @@ public class StaticUtils {
         }
 
         if (tags.isEmpty()) {
-            return;
+            return Collections.emptyList();
         }
         Collections.sort(tags, new Comparator<TagOrder>() {
             @Override
@@ -134,9 +134,12 @@ public class StaticUtils {
                 return o1.pos - o2.pos;
             }
         });
-        for (TagOrder t : tags) {
-            tagList.add(t.tag);
+        if (tagList != null) {
+            for (TagOrder t : tags) {
+                tagList.add(t.tag);
+            }
         }
+        return tags;
     }
 
     /**
@@ -169,9 +172,9 @@ public class StaticUtils {
         return e.getKeyCode() == code && e.getModifiers() == modifiers;
     }
 
-    static class TagOrder {
-        final int pos;
-        final String tag;
+    public static class TagOrder {
+        public final int pos;
+        public final String tag;
 
         public TagOrder(int pos, String tag) {
             this.pos = pos;
