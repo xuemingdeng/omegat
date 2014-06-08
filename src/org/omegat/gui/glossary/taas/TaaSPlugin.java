@@ -27,14 +27,24 @@ package org.omegat.gui.glossary.taas;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
+import java.util.List;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import org.omegat.core.Core;
 import org.omegat.core.CoreEvents;
 import org.omegat.core.events.IApplicationEventListener;
+import org.omegat.core.glossaries.IGlossary;
+import org.omegat.gui.glossary.GlossaryEntry;
+import org.omegat.tokenizer.ITokenizer;
+import org.omegat.util.Language;
+import org.omegat.util.Log;
 import org.omegat.util.OStrings;
+import org.omegat.util.Preferences;
+import org.omegat.util.Token;
 import org.openide.awt.Mnemonics;
 
 /**
@@ -42,17 +52,17 @@ import org.openide.awt.Mnemonics;
  * 
  * @author Alex Buloichik (alex73mail@gmail.com)
  */
-public class TaasGlossaries {
+public class TaaSPlugin {
     public static TaaSClient client;
 
     /**
      * Register plugin into OmegaT.
      */
     public static void loadPlugins() {
-        try {        
+        try {
             client = new TaaSClient();
         } catch (Exception ex) {
-            // Eat error silently
+            Log.log(ex);
         }
 
         CoreEvents.registerApplicationEventListener(new IApplicationEventListener() {
@@ -70,20 +80,24 @@ public class TaasGlossaries {
                 });
                 menu.add(browse);
 
-                JMenuItem lookup = new JMenuItem();
+                final JMenuItem lookup = new JCheckBoxMenuItem();
+                lookup.setSelected(Preferences.isPreferenceDefault(Preferences.TAAS_LOOKUP, false));
                 Mnemonics.setLocalizedText(lookup, OStrings.getString("TAAS_MENU_LOOKUP"));
                 lookup.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-
+                        Preferences.setPreference(Preferences.TAAS_LOOKUP, lookup.isSelected());
                     }
                 });
                 menu.add(lookup);
+
+                Core.getGlossaryManager().addGlossaryProvider(new TaaSGlossary());
             }
 
             public void onApplicationShutdown() {
             }
         });
+
     }
 
     public static void unloadPlugins() {
