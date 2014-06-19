@@ -22,34 +22,30 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **************************************************************************/
-
 package org.omegat.gui.glossary.taas;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
-import javax.swing.table.DefaultTableModel;
-
 import org.omegat.util.OStrings;
 import org.openide.awt.Mnemonics;
 
 /**
  * @author Alex Buloichik (alex73mail@gmail.com)
  */
-public class BrowseTaasCollectionsUI extends javax.swing.JDialog {
+public class SelectDomainUI extends javax.swing.JDialog {
 
     /**
-     * Creates new form BrowseTaasCollections
+     * Creates new form SelectDomainUI
      */
-    public BrowseTaasCollectionsUI(java.awt.Frame parent, boolean modal) {
+    public SelectDomainUI(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
     }
@@ -64,62 +60,43 @@ public class BrowseTaasCollectionsUI extends javax.swing.JDialog {
     private void initComponents() {
         GridBagConstraints gridBagConstraints;
 
-        labelStatus = new JLabel();
-        btnDownload = new JButton();
-        btnClose = new JButton();
+        btnSelect = new JButton();
         jScrollPane1 = new JScrollPane();
-        tableCollections = new JTable();
+        list = new JPanel();
+        rbAll = new JRadioButton();
+        labelStatus = new JLabel();
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle(OStrings.getString("TAAS_LIST_HEADER")); // NOI18N
-        setPreferredSize(new Dimension(1000, 600));
         getContentPane().setLayout(new GridBagLayout());
 
-        labelStatus.setHorizontalAlignment(SwingConstants.CENTER);
-        Mnemonics.setLocalizedText(labelStatus, " ");
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 10;
-        gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        getContentPane().add(labelStatus, gridBagConstraints);
-
-        Mnemonics.setLocalizedText(btnDownload, OStrings.getString("TAAS_LIST_DOWNLOAD")); // NOI18N
+        Mnemonics.setLocalizedText(btnSelect, OStrings.getString("TAAS_DOMAINS_SELECT")); // NOI18N
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.insets = new Insets(5, 5, 5, 5);
-        getContentPane().add(btnDownload, gridBagConstraints);
+        getContentPane().add(btnSelect, gridBagConstraints);
 
-        Mnemonics.setLocalizedText(btnClose, OStrings.getString("BUTTON_CLOSE")); // NOI18N
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 10;
-        gridBagConstraints.anchor = GridBagConstraints.NORTH;
-        gridBagConstraints.insets = new Insets(5, 5, 5, 5);
-        getContentPane().add(btnClose, gridBagConstraints);
+        list.setLayout(new BoxLayout(list, BoxLayout.PAGE_AXIS));
 
-        tableCollections.setModel(new DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane1.setViewportView(tableCollections);
+        Mnemonics.setLocalizedText(rbAll, OStrings.getString("TAAS_DOMAINS_ALL")); // NOI18N
+        list.add(rbAll);
+
+        jScrollPane1.setViewportView(list);
 
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         getContentPane().add(jScrollPane1, gridBagConstraints);
+
+        Mnemonics.setLocalizedText(labelStatus, " ");
+        gridBagConstraints = new GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.insets = new Insets(5, 5, 5, 5);
+        getContentPane().add(labelStatus, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -141,20 +118,20 @@ public class BrowseTaasCollectionsUI extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(BrowseTaasCollectionsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SelectDomainUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(BrowseTaasCollectionsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SelectDomainUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(BrowseTaasCollectionsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SelectDomainUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(BrowseTaasCollectionsUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SelectDomainUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                BrowseTaasCollectionsUI dialog = new BrowseTaasCollectionsUI(new javax.swing.JFrame(), true);
+                SelectDomainUI dialog = new SelectDomainUI(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -166,10 +143,10 @@ public class BrowseTaasCollectionsUI extends javax.swing.JDialog {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    public JButton btnClose;
-    public JButton btnDownload;
+    public JButton btnSelect;
     public JScrollPane jScrollPane1;
     public JLabel labelStatus;
-    public JTable tableCollections;
+    public JPanel list;
+    public JRadioButton rbAll;
     // End of variables declaration//GEN-END:variables
 }
