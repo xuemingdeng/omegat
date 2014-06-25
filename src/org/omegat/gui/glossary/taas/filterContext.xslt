@@ -8,7 +8,6 @@
 		</xsl:copy>
 	</xsl:template>
 
-	<xsl:template match="descrip[@type='surface']" />
-	<xsl:template match="termNote" />
+	<xsl:template match="descrip[@type='context']" />
 
 </xsl:stylesheet>
