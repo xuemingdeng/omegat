@@ -343,6 +343,8 @@ public class StaticUtils {
                 m.append(c);
             } else if (c == '/') {
                 m.append(c);
+            } else if (c == '?') {
+                m.append('.');
             } else if (c == '*') {
                 if (i + 1 < mask.length() && mask.charAt(i + 1) == '*') {
                     // **
