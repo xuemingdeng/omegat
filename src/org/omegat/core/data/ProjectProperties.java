@@ -58,7 +58,7 @@ import org.omegat.util.StringUtil;
 public class ProjectProperties {
 
     static final String[] DEFAULT_EXCLUDES = { "**/.svn/**", "**/CSVROOT/**", "**/.cvs/**", "**/desktop.ini",
-            "**/thumbs.db" };
+            "**/Thumbs.db" };
 
     /**
      * Constructor for tests only.
