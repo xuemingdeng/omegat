@@ -23,3 +23,8 @@ msgstr "trans11"
 msgctxt "other context"
 msgid "source1"
 msgstr "trans12"
+
+msgctxt "one more context"
+msgid "source4"
+msgid_plural "source4"
+
