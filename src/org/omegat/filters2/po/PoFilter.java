@@ -757,7 +757,11 @@ public class PoFilter extends AbstractFilter {
         if (isHeader && PoFilter.skipHeader) {
             translation = entry;
         } else {
-            translation = entryTranslateCallback.getTranslation(id, entry, path);
+            String alternative = path;
+            if ( plural > 0 ) {
+                alternative = path + "[" + plural + "]";
+            }
+            translation = entryTranslateCallback.getTranslation(id, entry, alternative );
         }
 
         if (translation == null && !allowNull) { // We write the source in translation
