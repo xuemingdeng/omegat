@@ -905,24 +905,8 @@ public class RealProject implements IProject {
                 // on the post-merge refresh.
                 Core.getEditor().waitForCommit(10);
                 
-                // Do 3-way merge of:
-                // Base: baseTMX
-                // File 1: projectTMX (mine)
-                // File 2: headTMX (theirs)
-                synchronized (projectTMX) {
-                    StmProperties props = new StmProperties().setBaseTmxName(OStrings.getString("TMX_MERGE_BASE"))
-                            .setTmx1Name(OStrings.getString("TMX_MERGE_MINE"))
-                            .setTmx2Name(OStrings.getString("TMX_MERGE_THEIRS"))
-                            .setLanguageResource(OStrings.getResourceBundle())
-                            .setParentWindow(Core.getMainWindow().getApplicationFrame())
-                            // More than this number of conflicts will trigger List View by default.
-                            .setListViewThreshold(5);
-                    ProjectTMX mergedTMX = SuperTmxMerge.merge(baseTMX, projectTMX, headTMX,
-                            m_config.getSourceLanguage().getLanguage(), m_config.getTargetLanguage().getLanguage(),
-                            props);
-                    projectTMX.replaceContent(mergedTMX);
-                }
-                
+                mergeTMX(baseTMX, headTMX);
+
                 // Refresh view immediately to make sure changes are applied properly.
                 SwingUtilities.invokeAndWait(new Runnable() {
                     @Override
@@ -1033,6 +1017,30 @@ public class RealProject implements IProject {
             }
         }
         Log.logInfoRB("TEAM_REBASE_END");
+    }
+
+    /**
+     * Do 3-way merge of:
+     * 
+     * Base: baseTMX
+     * 
+     * File 1: projectTMX (mine)
+     * 
+     * File 2: headTMX (theirs)
+     */
+    protected void mergeTMX(ProjectTMX baseTMX, ProjectTMX headTMX) {
+        synchronized (projectTMX) {
+            StmProperties props = new StmProperties().setBaseTmxName(OStrings.getString("TMX_MERGE_BASE"))
+                    .setTmx1Name(OStrings.getString("TMX_MERGE_MINE"))
+                    .setTmx2Name(OStrings.getString("TMX_MERGE_THEIRS"))
+                    .setLanguageResource(OStrings.getResourceBundle())
+                    .setParentWindow(Core.getMainWindow().getApplicationFrame())
+                    // More than this number of conflicts will trigger List View by default.
+                    .setListViewThreshold(5);
+            ProjectTMX mergedTMX = SuperTmxMerge.merge(baseTMX, projectTMX, headTMX, m_config
+                    .getSourceLanguage().getLanguage(), m_config.getTargetLanguage().getLanguage(), props);
+            projectTMX.replaceContent(mergedTMX);
+        }
     }
 
     /**
