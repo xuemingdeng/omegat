@@ -968,9 +968,10 @@ public class RealProject implements IProject {
 
             projectTMXFile.delete(); //delete head version (or base version, if offline)
             // Rename new file into TMX file
-            if (!filenameTMXwithLocalChangesOnHead.renameTo(projectTMXFile)) {
-                throw new IOException("Error rename new file to tmx: \n"+filenameTMXwithLocalChangesOnHead.getAbsolutePath()+" to \n"+projectTMXFile.getAbsolutePath()+" \n f1.exist="+filenameTMXwithLocalChangesOnHead.exists()+" f2.exist="+projectTMXFile.exists());
-            }
+            rename(filenameTMXwithLocalChangesOnHead, projectTMXFile);
+//            if (!filenameTMXwithLocalChangesOnHead.renameTo(projectTMXFile)) {
+//                throw new IOException("Error rename new file to tmx: \n"+filenameTMXwithLocalChangesOnHead.getAbsolutePath()+" to \n"+projectTMXFile.getAbsolutePath()+" \n f1.exist="+filenameTMXwithLocalChangesOnHead.exists()+" f2.exist="+projectTMXFile.exists());
+//            }
             if (filenameTMXwithLocalChangesOnBase != null) {
                 // Remove temp backup file
                 if (!filenameTMXwithLocalChangesOnBase.delete()) {
@@ -1019,6 +1020,27 @@ public class RealProject implements IProject {
             }
         }
         Log.logInfoRB("TEAM_REBASE_END");
+    }
+
+    void rename(File f1, File f2) throws IOException {
+        int c = 0;
+        long b = System.currentTimeMillis();
+        while (true) {
+            long e = System.currentTimeMillis();
+            if (f1.renameTo(f2)) {
+                if (c > 0) {
+                    Core.getMainWindow().showMessageDialog(
+                            "Rename " + f1 + " to " + f2 + " on the " + c + " step");
+                }
+                return;
+            }
+            c++;
+            if (e - b > 10000) {
+                Core.getMainWindow().showMessageDialog("Rename on the " + c + " step failed");
+                throw new IOException("Error rename new file to tmx: \n" + f1.getAbsolutePath() + " to \n"
+                        + f2.getAbsolutePath() + " \n f1.exist=" + f1.exists() + " f2.exist=" + f2.exists());
+            }
+        }
     }
 
     /**
