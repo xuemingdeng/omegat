@@ -40,6 +40,7 @@ import org.omegat.filters3.xml.XMLContentBasedTag;
 import org.omegat.filters3.xml.XMLText;
 import org.omegat.filters3.xml.xliff.XLIFFOptions.ID_TYPE;
 import org.omegat.util.InlineTagHandler;
+import org.omegat.util.Preferences;
 import org.omegat.util.StaticUtils;
 import org.omegat.util.StringUtil;
 
@@ -235,7 +236,7 @@ public class XLIFFDialect extends DefaultXMLDialect {
                 pp.setDetailsFromSourceFile(tag.toOriginal());
                 if (tagProtected) {
                     // protected text with related tags, like <m0>Acme</m0>
-                    if (StatCount.REMOVE_ALL_PROTECTED_PARTS) {
+                    if (Preferences.isPreferenceDefault(Preferences.COUNTING_PROTECTED_TEXT, true)) {
                         // All protected parts are not counted in the word count(default)
                         pp.setReplacementWordsCountCalculation(StaticUtils.TAG_REPLACEMENT);
                     } else {
