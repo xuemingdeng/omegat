@@ -35,12 +35,15 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.Utilities;
 
 import org.omegat.core.Core;
+import org.omegat.core.data.SourceTextEntry;
 import org.omegat.gui.editor.IEditor.CHANGE_CASE_TO;
 import org.omegat.gui.glossary.GlossaryEntry;
 import org.omegat.gui.glossary.GlossaryManager;
 import org.omegat.tokenizer.ITokenizer;
 import org.omegat.util.StringUtil;
+import org.omegat.util.TagUtil;
 import org.omegat.util.Token;
+import org.omegat.util.TagUtil.Tag;
 
 /**
  * Some utilities methods.
@@ -123,7 +126,7 @@ public class EditorUtils {
      * @return true if it's direction char
      */
     private static boolean isDirectionChar(final char ch) {
-        return ch == '\u202A' || ch == '\u202B' || ch == '\u202C';
+        return ch == '\u202A' || ch == '\u202B' || ch == '\u202C' || ch == '\u200E' || ch == '\u200F';
     }
 
     /**
@@ -134,7 +137,7 @@ public class EditorUtils {
      * @return string without direction chars
      */
     public static String removeDirectionChars(String text) {
-        return text.replaceAll("[\u202A\u202B\u202C]", "");
+        return text.replaceAll("[\u202A\u202B\u202C\u200E\u200F]", "");
     }
     
     /**
@@ -357,5 +360,30 @@ public class EditorUtils {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Add RTL+LTR around tags. Used for display tags better in RTL text.
+     */
+    public static String addBidiAroundTags(String text, SourceTextEntry ste) {
+        List<Tag> tags = TagUtil.buildTagList(text, ste.getProtectedParts());
+
+        int pos = 0;
+        StringBuilder s = new StringBuilder(text.length() * 12 / 10);
+        for (Tag t : tags) {
+            if (pos < t.pos) {
+                s.append(text.substring(pos, t.pos));
+            }
+            s.append(SegmentBuilder.BIDI_RLM);
+            s.append(SegmentBuilder.BIDI_LRM);
+            s.append(t.tag);
+            s.append(SegmentBuilder.BIDI_LRM);
+            s.append(SegmentBuilder.BIDI_RLM);
+            pos = t.pos + t.tag.length();
+        }
+        if (pos < text.length()) {
+            s.append(text.substring(pos));
+        }
+        return s.toString();
     }
 }
