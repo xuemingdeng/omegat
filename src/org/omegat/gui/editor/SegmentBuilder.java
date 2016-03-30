@@ -81,6 +81,8 @@ public class SegmentBuilder {
     private static final String BIDI_PDF = "\u202c";
     public static final String BIDI_LRM = "\u200e";
     public static final String BIDI_RLM = "\u200f";
+    public static final char BIDI_LRM_CHAR = '\u200e';
+    public static final char BIDI_RLM_CHAR = '\u200f';
 
     static AtomicLong globalVersions = new AtomicLong();
 

@@ -669,6 +669,11 @@ public class EditorController implements IEditor {
      * {@inheritDoc}
      */
     public SourceTextEntry getCurrentEntry() {
+        SegmentBuilder builder = getCurrentSegmentBuilder();
+        return builder == null ? null : builder.ste;
+    }
+
+    public SegmentBuilder getCurrentSegmentBuilder() {
         if (m_docSegList == null || displayedEntryIndex < 0 || m_docSegList.length <= displayedEntryIndex) {
             // there is no current entry
             return null;
@@ -676,7 +681,7 @@ public class EditorController implements IEditor {
         if (m_docSegList[displayedEntryIndex] == null) {
             return null;
         }
-        return m_docSegList[displayedEntryIndex].ste;
+        return m_docSegList[displayedEntryIndex];
     }
 
     /**
@@ -1100,7 +1105,7 @@ public class EditorController implements IEditor {
 
         // remove internal bidi chars
         String transWithControlChars = doc.extractTranslation();
-        String newTrans = EditorUtils.removeDirectionChars(transWithControlChars);
+        String newTrans = EditorUtils.removeDirectionCharsAroundTags(transWithControlChars, getCurrentEntry());
         System.out.println("Convert bidi on save: from '" + transWithControlChars.replace("\u200e", "\\u200e").replace("\u200f", "\\u200f") + "' to '" + newTrans.replace("\u200e", "\\u200e").replace("\u200f", "\\u200f") + "'");
         if (newTrans != null) {
             commitAndDeactivate(null, newTrans);
@@ -1683,7 +1688,7 @@ public class EditorController implements IEditor {
 
         SegmentBuilder builder = m_docSegList[displayedEntryIndex];
         if (builder.hasRTL && targetLangIsRTL) {
-            text = EditorUtils.addBidiAroundTags(EditorUtils.removeDirectionChars(text), builder.ste);
+            text = EditorUtils.addBidiAroundTags(EditorUtils.removeDirectionCharsAroundTags(text, builder.ste), builder.ste);
         }
 
         // build local offsets
@@ -1797,11 +1802,15 @@ public class EditorController implements IEditor {
     /**
      * {@inheritDoc}
      */
-    public void insertText(final String text) {
+    public void insertText(String text) {
         UIThreadsUtil.mustBeSwingThread();
 
         editor.checkAndFixCaret();
 
+        SegmentBuilder builder = m_docSegList[displayedEntryIndex];
+        if (builder.hasRTL && targetLangIsRTL) {
+            text = EditorUtils.addBidiAroundTags(EditorUtils.removeDirectionCharsAroundTags(text, builder.ste), builder.ste);
+        }
         editor.replaceSelection(text);
     }
 
