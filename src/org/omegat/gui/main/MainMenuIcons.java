@@ -25,6 +25,7 @@
 
 package org.omegat.gui.main;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -32,6 +33,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.Toolkit;
 import java.awt.font.GlyphVector;
 import java.util.Map;
@@ -161,6 +163,34 @@ public final class MainMenuIcons {
                 Rectangle r = gv.getPixelBounds(g2.getFontRenderContext(), x, y);
                 int dx = x + (getIconWidth() - r.width) / 2;
                 int dy = y + getIconHeight() - (getIconHeight() - r.height) / 2;
+                g2.drawGlyphVector(gv, dx, dy);
+            }
+        };
+    }
+
+    static Icon newUnderlineTextIcon(Color color, Font font, char c, Color underlineColor) {
+        char[] chars = new char[] { c };
+        Stroke underlineStroke = new BasicStroke(2f);
+        return new BaseIcon() {
+            @Override
+            void doPaint(Graphics2D g2, int x, int y) {
+                g2.setStroke(underlineStroke);
+                if (underlineColor != null) {
+                    g2.setColor(underlineColor);
+                }
+                g2.drawLine(x, y + getIconHeight() - 1, x + getIconWidth(), y + getIconHeight() - 1);
+
+                if (color != null) {
+                    g2.setColor(color);
+                }
+                if (font != null) {
+                    g2.setFont(font);
+                }
+                GlyphVector gv = g2.getFont().layoutGlyphVector(g2.getFontRenderContext(), chars, 0, 1,
+                        Font.LAYOUT_LEFT_TO_RIGHT);
+                Rectangle r = gv.getPixelBounds(g2.getFontRenderContext(), x, y);
+                int dx = x + (getIconWidth() - r.width) / 2;
+                int dy = y + getIconHeight() - (getIconHeight() - r.height) / 2 - 1;
                 g2.drawGlyphVector(gv, dx, dy);
             }
         };

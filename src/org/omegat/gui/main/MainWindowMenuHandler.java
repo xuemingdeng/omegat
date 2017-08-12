@@ -745,6 +745,11 @@ public class MainWindowMenuHandler {
                 .setMarkAutoPopulated(mainWindow.menu.viewMarkAutoPopulatedCheckBoxMenuItem.isSelected());
     }
 
+    public void viewMarkGlossaryMatchesCheckBoxMenuItemActionPerformed() {
+        Core.getEditor().getSettings()
+                .setMarkGlossaryMatches(mainWindow.menu.viewMarkGlossaryMatchesCheckBoxMenuItem.isSelected());
+    }
+
     public void viewMarkLanguageCheckerCheckBoxMenuItemActionPerformed() {
         Core.getEditor().getSettings()
                 .setMarkLanguageChecker(mainWindow.menu.viewMarkLanguageCheckerCheckBoxMenuItem.isSelected());
