@@ -205,44 +205,45 @@ public final class MainWindowUI {
             statusText = OStrings.getProgressBarDefaultPrecentageText();
             tooltipText = "MW_PROGRESS_TOOLTIP_PERCENTAGE";
         }
+        statusText = "[--/--][--]";
         Mnemonics.setLocalizedText(mainWindow.progressLabel, statusText);
-        mainWindow.progressLabel.setToolTipText(OStrings.getString(tooltipText));
+//        mainWindow.progressLabel.setToolTipText(OStrings.getString(tooltipText));
 
-        mainWindow.progressLabel.setBorder(border);
+//        mainWindow.progressLabel.setBorder(border);
         mainWindow.progressLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                StatusBarMode[] modes = StatusBarMode.values();
-                StatusBarMode progressMode = Preferences.getPreferenceEnumDefault(
-                        Preferences.SB_PROGRESS_MODE, StatusBarMode.DEFAULT);
-                progressMode = modes[(progressMode.ordinal() + 1) % modes.length];
-
-                Preferences.setPreference(Preferences.SB_PROGRESS_MODE, progressMode);
-
-                String statusText = OStrings.getString("MW_PROGRESS_DEFAULT");
-                String tooltipText = "MW_PROGRESS_TOOLTIP";
-                if (progressMode == StatusBarMode.PERCENTAGE) {
-                    statusText = OStrings.getProgressBarDefaultPrecentageText();
-                    tooltipText = "MW_PROGRESS_TOOLTIP_PERCENTAGE";
-                }
-
-                if (Core.getProject().isProjectLoaded()) {
-                    ((EditorController) Core.getEditor()).showStat();
-                } else {
-                    Core.getMainWindow().showProgressMessage(statusText);
-                }
-                ((MainWindow) Core.getMainWindow()).setProgressToolTipText(OStrings.getString(tooltipText));
+//                StatusBarMode[] modes = StatusBarMode.values();
+//                StatusBarMode progressMode = Preferences.getPreferenceEnumDefault(
+//                        Preferences.SB_PROGRESS_MODE, StatusBarMode.DEFAULT);
+//                progressMode = modes[(progressMode.ordinal() + 1) % modes.length];
+//
+//                Preferences.setPreference(Preferences.SB_PROGRESS_MODE, progressMode);
+//
+//                String statusText = OStrings.getString("MW_PROGRESS_DEFAULT");
+//                String tooltipText = "MW_PROGRESS_TOOLTIP";
+//                if (progressMode == StatusBarMode.PERCENTAGE) {
+//                    statusText = OStrings.getProgressBarDefaultPrecentageText();
+//                    tooltipText = "MW_PROGRESS_TOOLTIP_PERCENTAGE";
+//                }
+//
+//                if (Core.getProject().isProjectLoaded()) {
+//                    ((EditorController) Core.getEditor()).showWordCountStat();
+//                } else {
+//                    Core.getMainWindow().showProgressMessage(statusText);
+//                }
+                //((MainWindow) Core.getMainWindow()).setProgressToolTipText(OStrings.getString(tooltipText));
             }
         });
 
         Mnemonics.setLocalizedText(mainWindow.lengthLabel, OStrings.getString("MW_SEGMENT_LENGTH_DEFAULT"));
-        mainWindow.lengthLabel.setToolTipText(OStrings.getString("MW_SEGMENT_LENGTH_TOOLTIP"));
-        mainWindow.lengthLabel.setBorder(border);
-        mainWindow.lengthLabel.setFocusable(false);
+//        mainWindow.lengthLabel.setToolTipText(OStrings.getString("MW_SEGMENT_LENGTH_TOOLTIP"));
+//        mainWindow.lengthLabel.setBorder(border);
+//        mainWindow.lengthLabel.setFocusable(false);
 
         JPanel statusPanel2 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         statusPanel2.add(mainWindow.progressLabel);
-        statusPanel2.add(mainWindow.lengthLabel);
+        //statusPanel2.add(mainWindow.lengthLabel);
 
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.add(mainWindow.statusLabel, BorderLayout.CENTER);

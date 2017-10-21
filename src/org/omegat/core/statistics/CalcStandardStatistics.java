@@ -29,6 +29,7 @@
 package org.omegat.core.statistics;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -135,6 +136,43 @@ public class CalcStandardStatistics extends LongProcessThread {
      * character count of the project, the total number of unique segments, plus
      * the details for each file.
      */
+
+    public static String buildFileStats(final IProject project, final IProject.FileInfo fi){
+
+        StatCount total = new StatCount();
+        StatCount translated = new StatCount();
+
+            for (SourceTextEntry ste : fi.entries) {
+                String src = ste.getSrcText();
+                for (ProtectedPart pp : ste.getProtectedParts()) {
+                    src = src.replace(pp.getTextInSourceSegment(), pp.getReplacementUniquenessCalculation());
+                }
+
+                /* Number of words and chars calculated without all tags and protected parts. */
+                StatCount count = new StatCount(ste);
+
+                // add to total
+                total.add(count);
+
+
+                // add to remaining
+                TMXEntry tr = project.getTranslationInfo(ste);
+                if (tr.isTranslated()) {
+                    translated.add(count);
+                }
+
+            }
+
+
+        StringBuilder result = new StringBuilder();
+
+
+        result.append("[ ").append(translated.words).append("/").append(total.words).append(" ] [ ").append(Double.valueOf(translated.words*100/total.words).intValue()).append("% ]");
+
+
+        return result.toString();
+    }
+
     public static String buildProjectStats(final IProject project, final StatisticsInfo hotStat,
             final StatisticsPanel callback) {
 

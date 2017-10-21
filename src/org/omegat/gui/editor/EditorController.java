@@ -96,6 +96,7 @@ import org.omegat.core.data.SourceTextEntry;
 import org.omegat.core.data.SourceTextEntry.DUPLICATE;
 import org.omegat.core.data.TMXEntry;
 import org.omegat.core.events.IEntryEventListener;
+import org.omegat.core.statistics.CalcStandardStatistics;
 import org.omegat.core.statistics.StatisticsInfo;
 import org.omegat.gui.dialogs.ConflictDialogController;
 import org.omegat.gui.editor.autocompleter.IAutoCompleter;
@@ -841,8 +842,8 @@ public class EditorController implements IEditor {
 
         setMenuEnabled();
 
-        showStat();
-
+//        showStat();
+        showWordCountStat();
         showLengthMessage();
 
         if (Preferences.isPreference(Preferences.EXPORT_CURRENT_SEGMENT)) {
@@ -961,6 +962,14 @@ public class EditorController implements IEditor {
             Log.log(ex);
         }
         return result;
+    }
+
+    public void showWordCountStat(){
+        IProject project = Core.getProject();
+        IProject.FileInfo fi = project.getProjectFiles().get(displayedFileIndex);
+
+        String result = CalcStandardStatistics.buildFileStats(project,fi);
+        mw.showProgressMessage(result);
     }
 
     /**
@@ -1424,7 +1433,7 @@ public class EditorController implements IEditor {
 
     /**
      * Find the next unique entry.
-     * @param findTranslated should the next entry be translated or not.
+     * findTranslated should the next entry be translated or not.
      */
     public void nextUniqueEntry() {
         iterateToEntry(true, ste -> ste.getDuplicate() != DUPLICATE.NEXT);
