@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.languagetool:languagetool-gui-commons:3.5">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.languagetool/languagetool-gui-commons/3.5/46485837aeaee35d43453166819a5d6d52e42bac/languagetool-gui-commons-3.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.languagetool/languagetool-gui-commons/3.5/6561b08fbb98119dcbee64a43dfa6b80f0ba4c88/languagetool-gui-commons-3.5-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

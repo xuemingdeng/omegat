@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.xmlunit:xmlunit-core:2.4.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.xmlunit/xmlunit-core/2.4.0/87d4a5d640b127d0e489e9992f0f8f1dede7536e/xmlunit-core-2.4.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.xmlunit/xmlunit-core/2.4.0/be203d715de596a770afdd5635b15c6aabf4e59f/xmlunit-core-2.4.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

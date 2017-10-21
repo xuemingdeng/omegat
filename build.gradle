@@ -204,10 +204,10 @@ jar {
 }
 
 ext {
-    assetDir = findProperty('assetDir') ?: '../'
+    assetDir = findProperty('assetDir') ?: 'asset'
 
     macExecutable = file("${assetDir}/JavaAppLauncher")
-    macJRE = file("${assetDir}/jre-mac-root")
+    macJRE = file("${assetDir}/JRE")
     macDistEnabled = macExecutable.file && macJRE.directory
 
     linuxJRE = file("${assetDir}/jre-linux")
